@@ -1,0 +1,47 @@
+{
+  "verified_on": "2026-11-03",
+  "system": "CodeAutoGeneratorSystem / SQL import and SQL teaching",
+  "parser_version": "13.8",
+  "source_files": [
+    {
+      "path": "src/application/contexts/content/generator/utils/sqlParser/nodeSqlParser.ts",
+      "sha256": "df9a664bda8244236bee077097dcf4012149b904648759903cbdd09c481761e9"
+    },
+    {
+      "path": "src/application/contexts/content/generator/utils/sqlParser/preprocess.ts",
+      "sha256": "62943bc4f00d89de2dda35fb6ec9a4606297bd390b489438077edae01922bf01"
+    },
+    {
+      "path": "src/shared/contracts/generator/sqlParse.ts",
+      "sha256": "f0744e98e5d2a8d83210580ecbce07627aea3028b953437c8d03d9d0822ee7dc"
+    },
+    {
+      "path": "src/shared/kernel/sql/sourceDialect.ts",
+      "sha256": "c5335a0f596e4201576cd7b318e991ba1dc21d994a1e58bf22aeea6a49378bab"
+    },
+    {
+      "path": "src/shared/kernel/enums/enums.ts",
+      "sha256": "e0976c8cf7588750cf63ec4cc5f3ab918984856d92b6e8550cd684dfc7eb42bf"
+    },
+    {
+      "path": "src/shared/kernel/constants/jiemaSql.ts",
+      "sha256": "e974fe9e098ebf83db7257fc63cb029121d30543df0d02184b32888fc26a1191"
+    },
+    {
+      "path": "src/domain/generator/sql-teaching/SqlTeachingRoutines.ts",
+      "sha256": "a05622aeedf3f22a22cc267f81bfd022218e99818c96a35d7876e0844639de41"
+    },
+    {
+      "path": "src/domain/generator/sql-teaching/SqlTeachingBuilder.ts",
+      "sha256": "32f42bf6846c512f5cdf5c521970a4d192274998505cfef3f67f118676151f3a"
+    },
+    {
+      "path": "src/domain/generator/app/worker/sub/SqlDocTemplateSqlComponentService.ts",
+      "sha256": "f76a9707581f5bc0e13290a57899e62deac684cec259c7d992f086d0b5c43518"
+    },
+    {
+      "path": "src/application/contexts/content/generator/services/StudioDesignAssetBuilder.ts",
+      "sha256": "ce9cb1231fd7b2ee62b175fcd45f6800958e7efcd8d24542319a6bf6bbbbe01d"
+    }
+  ]
+}

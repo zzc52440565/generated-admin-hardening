@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-03",
+  "version": "2.2.0",
+  "scope": "Studio三图全文快速填写产品能力与技能同步；保留SQL重设计规范",
+  "skillMetadata": "passed",
+  "toolUnitTests": {
+    "status": "passed",
+    "count": 13
+  },
+  "staticChecks": {
+    "status": "passed",
+    "localLinks": 43,
+    "pythonJsonYaml": true,
+    "uiMetadata": true,
+    "previousDownloadsUnchanged": true
+  },
+  "product": {
+    "targetedUnitTests": {
+      "status": "passed",
+      "files": 6,
+      "distinctTests": 68,
+      "detail": "67项首轮通过，新增重复连线身份回归后2个受影响文件19项复验通过"
+    },
+    "eslint": "passed: 本轮15个文件无警告；后续改动文件定向复验",
+    "typeCheck": "passed: 完整miniapp+web；架构连线修复后web复验通过",
+    "browserRegression": {
+      "status": "passed",
+      "count": 4,
+      "viewports": [
+        {
+          "width": 1600,
+          "height": 1000
+        },
+        {
+          "width": 390,
+          "height": 1000
+        }
+      ],
+      "scope": "公开模板中的架构/类图全文更新、错误保护、回填；不包含私有项目数据库保存",
+      "engine": "Chromium",
+      "browserPlugin": "not available; 使用仓库Playwright",
+      "health": "页面身份、非空、无框架覆盖、无console warning/error与pageerror；用例公开模板保持只读",
+      "evidenceDirectory": "本地独立验收目录（未公开）"
+    }
+  },
+  "studio": {
+    "status": "passed",
+    "facts": {
+      "sourceFingerprints": "全部匹配",
+      "sqlCompatibility": {
+        "sourceFingerprints": "全部匹配",
+        "verification": "源码事实核对；未执行业务 SQL 或数据库对象"
+      },
+      "functionStructure": {
+        "nodes": 9,
+        "edges": 8,
+        "roundTrip": true
+      },
+      "umlClass": {
+        "addedClasses": 3,
+        "relations": 2,
+        "retainedOldClass": false,
+        "idempotent": true
+      },
+      "sequence": {
+        "participants": 4,
+        "messages": 7,
+        "events": 12,
+        "roundTrip": true
+      },
+      "flowchart": {
+        "nodes": 7,
+        "edges": 7,
+        "mergeIncoming": 2,
+        "invalidReferenceRejected": true
+      },
+      "05-dfd-context.txt": {
+        "nodes": 2,
+        "edges": 2
+      },
+      "05-dfd-level1.txt": {
+        "nodes": 3,
+        "edges": 4
+      },
+      "05-dfd-level2-1.0.txt": {
+        "nodes": 5,
+        "edges": 7
+      },
+      "dfdBoundaryBalance": true,
+      "useCase": {
+        "addedActors": 2,
+        "addedUseCases": 5,
+        "retainedOldActor": false,
+        "idempotent": true
+      },
+      "architecture": {
+        "nodes": 3,
+        "edges": 2,
+        "roundTrip": true
+      }
+    }
+  },
+  "sqlDesignReview": {
+    "status": "retained",
+    "coverage": [
+      "表结构与约束",
+      "CREATE/INSERT",
+      "READ/SELECT",
+      "UPDATE",
+      "DELETE/作废",
+      "VIEW",
+      "PROCEDURE",
+      "TRIGGER",
+      "调用迁移",
+      "新装/升级/恢复",
+      "七图同步"
+    ],
+    "databaseExecution": "unverified：本轮未提供业务SQL或运行客户数据库对象"
+  },
+  "packageValidation": {
+    "status": "passed",
+    "zipFiles": {
+      "generated-admin-hardening-2.2.0.zip": 35,
+      "generated-admin-hardening-2.2.0-source.zip": 53
+    },
+    "crcAndSha256": true,
+    "archivedBytesEqualSource": true,
+    "cleanDownloadInstall": true,
+    "existingInstallProtected": true,
+    "previousVersionUnchanged": true,
+    "sqlMaterialsAndNativeArchitectureInPortable": true,
+    "temporaryDirectoryRemoved": true,
+    "links": 43,
+    "pythonJsonYaml": true
+  },
+  "notRun": [
+    "私有项目数据库保存端到端",
+    "全量产品构建/单测",
+    "生产迁移/部署",
+    "公网发布或插件提交",
+    "真实客户项目SQL执行"
+  ]
+}

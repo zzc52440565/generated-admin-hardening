@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-03",
+  "scope": "技能及工具本地验收，未发布或更新用户 Studio 项目",
+  "skillMetadata": "passed",
+  "unitTests": {
+    "status": "passed",
+    "count": 13
+  },
+  "browserSmoke": {
+    "status": "passed",
+    "positiveCases": 5,
+    "negativeResultRejected": true,
+    "environment": "本进程回环 HTTP 合成页面与真实 Chromium"
+  },
+  "studio": {
+    "status": "passed",
+    "facts": {
+      "sourceFingerprints": "全部匹配",
+      "functionStructure": {
+        "nodes": 9,
+        "edges": 8,
+        "roundTrip": true
+      },
+      "umlClass": {
+        "addedClasses": 3,
+        "relations": 2,
+        "retainedOldClass": true,
+        "idempotent": true
+      },
+      "sequence": {
+        "participants": 4,
+        "messages": 7,
+        "events": 12,
+        "roundTrip": true
+      },
+      "flowchart": {
+        "nodes": 7,
+        "edges": 7,
+        "mergeIncoming": 2,
+        "invalidReferenceRejected": true
+      },
+      "05-dfd-context.txt": {
+        "nodes": 2,
+        "edges": 2
+      },
+      "05-dfd-level1.txt": {
+        "nodes": 3,
+        "edges": 4
+      },
+      "05-dfd-level2-1.0.txt": {
+        "nodes": 5,
+        "edges": 7
+      },
+      "dfdBoundaryBalance": true,
+      "useCase": {
+        "addedActors": 2,
+        "addedUseCases": 5,
+        "retainedOldActor": true,
+        "idempotent": true
+      },
+      "architecture": "源码与人工编辑说明核对；不存在可运行的快速填写解析入口"
+    }
+  },
+  "packageValidation": {
+    "status": "passed",
+    "skillZipFiles": 29,
+    "sourceZipFiles": 41,
+    "crcAndSha256": true,
+    "archivedBytesEqualSource": true,
+    "cleanDownloadInstall": true,
+    "existingInstallProtected": true,
+    "temporaryDirectoryRemoved": true
+  }
+}

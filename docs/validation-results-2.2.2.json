@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-03",
+  "version": "2.2.2",
+  "scope": "真实项目七图、DFD内容编辑与系统流程/DFD整族一次填写",
+  "case": {
+    "sourceFiles": 281,
+    "systemFlowcharts": 17,
+    "systemFlowchartNodes": 167,
+    "dfdMembers": 7,
+    "dfdLevel2": 5,
+    "dfdLevel1Edges": 36,
+    "contextBoundaryMappings": 18,
+    "level2BoundaryMappings": 61
+  },
+  "native": {
+    "sevenTypes": "passed",
+    "wholeFamilies": "passed",
+    "invalidBatchAtomicRejection": "passed",
+    "exampleSourceFingerprints": "passed: diagrams-only"
+  },
+  "browser": {
+    "singleTexts": 9,
+    "singleTypes": 7,
+    "singleSaveReload": "passed",
+    "desktopWholeFamilies": {
+      "tests": 2,
+      "result": "passed",
+      "viewport": "1920x1080"
+    },
+    "mobileDfd": {
+      "tests": 1,
+      "result": "passed",
+      "viewport": 390
+    },
+    "scope": "本地独立账号项目、真实API与回环数据库，不导入客户SQL，不写现有用户项目"
+  },
+  "product": {
+    "targetedUnitTests": "passed（分组重叠，不相加）",
+    "typeCheck": "passed: miniapp + web",
+    "finalWebTypeCheck": "passed",
+    "targetedEslint": "passed"
+  },
+  "skill": {
+    "pythonTests": 13,
+    "staticValidation": "passed",
+    "formatVerification": "passed: 七类9示例及两份3成员整族示例"
+  },
+  "package": {
+    "version": "2.2.2",
+    "oldDownloadArtifactsPreserved": 12,
+    "checks": [
+      "CRC",
+      "SHA256",
+      "source-byte-equality",
+      "isolated-install",
+      "existing-install-refusal"
+    ],
+    "hashFile": "dist/SHA256SUMS-2.2.2.txt",
+    "resultEvidence": "构建后独立package-check.json，不在包内递归记录自身哈希"
+  },
+  "notRun": [
+    "客户业务运行验收",
+    "客户SQL引擎实测/数据库迁移",
+    "本轮SQL来源指纹（显式diagrams-only）",
+    "全仓构建/全量测试",
+    "生产部署",
+    "公网发布/插件提交"
+  ],
+  "historicalValidation": "validation-results-2.2.1.json"
+}

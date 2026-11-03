@@ -1,0 +1,194 @@
+{
+  "date": "2026-11-03",
+  "version": "2.2.1",
+  "scope": "三图全文快速填写自查自纠；SQL规范审查与技能分发复验",
+  "findings": [
+    {
+      "id": "F1",
+      "status": "fixed",
+      "issue": "新增同名架构节点的确定性ID与复用节点冲突",
+      "regression": "修复前失败，修复后通过"
+    },
+    {
+      "id": "F2",
+      "status": "fixed",
+      "issue": "在旧连线前插入新连线生成重复ID",
+      "regression": "修复前失败，修复后通过"
+    },
+    {
+      "id": "F3",
+      "status": "fixed",
+      "issue": "类内局部成员ID跨类复用时，未包含成员错误保留",
+      "regression": "修复前失败，修复后通过"
+    },
+    {
+      "id": "F4",
+      "status": "fixed",
+      "issue": "先新增关系种类会抢占后续保留关系身份和元数据",
+      "regression": "修复前失败，修复后通过"
+    },
+    {
+      "id": "F5",
+      "status": "fixed",
+      "issue": "用例超限提示与规范仍含增量/分段语义",
+      "regression": "超限拒绝、禁止分段文案与规范已同步"
+    },
+    {
+      "id": "F6",
+      "status": "fixed",
+      "issue": "相邻Workspace责任测试仍断言增量旧行为",
+      "regression": "更新为删除目标+实际reducer/物化结果，33项通过"
+    }
+  ],
+  "product": {
+    "unitTests": {
+      "status": "passed",
+      "files": 8,
+      "count": 123,
+      "suites": [
+        "三图构建/编辑器与用例物化：74",
+        "用例Workspace：33",
+        "D3/SVG渲染合同：16"
+      ]
+    },
+    "typeCheck": "passed: pnpm run type-check（miniapp+web）",
+    "eslint": "passed: 8个本轮文件",
+    "browserRegression": {
+      "status": "passed",
+      "count": 4,
+      "viewports": [
+        {
+          "width": 1600,
+          "height": 1000
+        },
+        {
+          "width": 390,
+          "height": 1000
+        }
+      ],
+      "scope": "公开模板中架构同名新节点、插入两条关系的接收/回填、全文删项与非法输入保护；类图全文替换、重新回填与非法引用草稿保护",
+      "health": {
+        "facts": [
+          {
+            "type": "architecture-diagram",
+            "url": "http://127.0.0.1:3167/studio/examples/template/architecture-diagram",
+            "title": "公开模板示例 | 捷码AI",
+            "nonBlank": true,
+            "frameworkOverlay": 0,
+            "hasFullText": true,
+            "editable": true
+          },
+          {
+            "type": "use-case-diagram",
+            "url": "http://127.0.0.1:3167/studio/examples/template/use-case-diagram",
+            "title": "公开模板示例 | 捷码AI",
+            "nonBlank": true,
+            "frameworkOverlay": 0,
+            "hasFullText": true,
+            "editable": false
+          }
+        ],
+        "logs": []
+      },
+      "evidenceDirectory": "本地独立验收目录（未公开）"
+    }
+  },
+  "skillMetadata": "passed",
+  "toolTests": {
+    "status": "passed",
+    "count": 13
+  },
+  "skillBrowserSmoke": {
+    "status": "passed",
+    "positive": 5,
+    "negativeCorrectlyRejected": 1,
+    "scope": "本进程合成网页；无业务数据"
+  },
+  "studio": {
+    "status": "passed",
+    "facts": {
+      "sourceFingerprints": "全部匹配",
+      "sqlCompatibility": {
+        "sourceFingerprints": "全部匹配",
+        "verification": "源码事实核对；未执行业务 SQL 或数据库对象"
+      },
+      "functionStructure": {
+        "nodes": 9,
+        "edges": 8,
+        "roundTrip": true
+      },
+      "umlClass": {
+        "addedClasses": 3,
+        "relations": 2,
+        "retainedOldClass": false,
+        "idempotent": true
+      },
+      "sequence": {
+        "participants": 4,
+        "messages": 7,
+        "events": 12,
+        "roundTrip": true
+      },
+      "flowchart": {
+        "nodes": 7,
+        "edges": 7,
+        "mergeIncoming": 2,
+        "invalidReferenceRejected": true
+      },
+      "05-dfd-context.txt": {
+        "nodes": 2,
+        "edges": 2
+      },
+      "05-dfd-level1.txt": {
+        "nodes": 3,
+        "edges": 4
+      },
+      "05-dfd-level2-1.0.txt": {
+        "nodes": 5,
+        "edges": 7
+      },
+      "dfdBoundaryBalance": true,
+      "useCase": {
+        "addedActors": 2,
+        "addedUseCases": 5,
+        "retainedOldActor": false,
+        "idempotent": true
+      },
+      "architecture": {
+        "nodes": 3,
+        "edges": 2,
+        "roundTrip": true
+      }
+    }
+  },
+  "staticChecks": {
+    "status": "passed",
+    "pythonJsonYaml": true,
+    "localLinks": "all resolved"
+  },
+  "packageValidation": {
+    "status": "passed",
+    "files": {
+      "generated-admin-hardening-2.2.1.zip": 35,
+      "generated-admin-hardening-2.2.1-source.zip": 55
+    },
+    "crcAndSha256": true,
+    "bytesEqualSource": true,
+    "isolatedInstall": true,
+    "existingInstallProtected": true,
+    "previousDownloadsUnchanged": 9,
+    "temporaryDirectoryRemoved": true,
+    "portableIncludesUpdatedProtocolsAndSql": true
+  },
+  "sqlReview": {
+    "status": "passed: 静态规范与源码兼容性",
+    "actualBusinessSqlExecution": "unverified：未提供具体业务SQL或目标隔离数据库"
+  },
+  "notRun": [
+    "私有项目数据库保存端到端",
+    "全量产品构建/全仓单测",
+    "客户业务SQL引擎实测",
+    "数据库迁移、生产部署、公网发布"
+  ],
+  "acceptedBoundary": "当前四种预置架构排版不绘制连线/箭头，关系文本仍保留并回填；对应D3与SVG合同16项本轮通过，未修改渲染器或导出缓存"
+}

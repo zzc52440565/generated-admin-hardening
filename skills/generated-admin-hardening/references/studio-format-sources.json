@@ -1,0 +1,148 @@
+{
+  "verified_on": "2026-11-03",
+  "system": "CodeAutoGeneratorSystem / Studio",
+  "sources": {
+    "function-structure": [
+      {
+        "path": "src/shared/capabilities/studio/functionStructureQuickFill.ts",
+        "sha256": "7d51a1fbd473b4580ef8bcd663fd6c3bddb9bb5612ec8dab4ed2d1e813ad9cfc"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/FunctionStructureTreeEditor.tsx",
+        "sha256": "f381ccb377b171ed3ae18e429b6f633fdf16a838f213e8c6e041e9efd24b0210"
+      }
+    ],
+    "uml-class": [
+      {
+        "path": "src/shared/capabilities/studio/domainClassDiagramAiQuickInput.ts",
+        "sha256": "d36520e3e7176704e1be0cfdaf56981ee207aab272a3f551e4a1360b4ea796b6"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/domainUmlClassQuickFill.ts",
+        "sha256": "aae5a9e908f63390658caf3d6f54d7600fd86f34f5294e1df548f2938cd65c02"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/UmlClassDomainInspector.tsx",
+        "sha256": "42e86c605a63d9bbff05e2c72fba75bc6d940393cb6cf0c39d2dd6e8f19c0776"
+      }
+    ],
+    "sequence": [
+      {
+        "path": "src/ui/lib/figures/sequenceQuickFill.ts",
+        "sha256": "07303f81ae4e3f3f04d85aaa1adba8550a9b43e03eb071fd4a935a65d7075e8b"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/SequenceTaskEditor.tsx",
+        "sha256": "78001304dd53cabd1bb8d434029d0968557388d47b83754a307a6581961a52b5"
+      }
+    ],
+    "flowchart": [
+      {
+        "path": "src/shared/capabilities/studio/systemFlowchartStructureText.ts",
+        "sha256": "0a74c7519f29d2379cdd9e49e31b4ca4947c882fb609d00ddf13b861a79dae4c"
+      },
+      {
+        "path": "src/ui/lib/figures/flowchartQuickFill.ts",
+        "sha256": "e9fd81843cacd8e68ab56e619d1338db387993ade171febc5dc0db4ef5674872"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/GraphTaskEditors.tsx",
+        "sha256": "74a982522670e2a70365e0a6a863833c896b9b2a6716feb5aa0514d812e2d994"
+      },
+      {
+        "path": "src/ui/lib/figures/figureFamilyQuickFill.ts",
+        "sha256": "ff39a199ea98e57fbce0bf64046e083f6e851e911fc0c073e2dc6d3b167fbc8e"
+      },
+      {
+        "path": "src/shared/capabilities/studio/diagram-persistence/studioProjectFigureFamily.ts",
+        "sha256": "fbf25c6662ce2e47e97e513d876a0832a68c93e4ef20037f11e077e9a6ad04c5"
+      },
+      {
+        "path": "src/shared/contracts/studio/studioProjectFigureTransport.ts",
+        "sha256": "bb1969ab0009f432e31681130431d42029a15545b451a3d036cf3185b3bcf07b"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/FigureFamilyQuickFillEditor.tsx",
+        "sha256": "0b94f43f353668f9a510d917fd665f23eca64a3eafc30a47ed7a22d485253aad"
+      }
+    ],
+    "data-flow": [
+      {
+        "path": "src/ui/lib/figures/dataFlowQuickFill.ts",
+        "sha256": "d61d457df9cbfd62390c49fdc6fbd71268895232022560313f8a376cc91f6c62"
+      },
+      {
+        "path": "src/shared/capabilities/studio/dataFlowDiagramFamilyAiQuickInput.ts",
+        "sha256": "cbf1242872bbdeaa9831aa6913c002715fecd1523fd141464c9c6aacf6c15ec9"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/GraphTaskEditors.tsx",
+        "sha256": "74a982522670e2a70365e0a6a863833c896b9b2a6716feb5aa0514d812e2d994"
+      },
+      {
+        "path": "src/shared/capabilities/diagram/model/dataFlowDiagramFamilyMaterializer.ts",
+        "sha256": "4921bcddb16ddbe79977d5f03e1372d25f5718bcd48fc21c039d040a0bbd5c2c"
+      },
+      {
+        "path": "src/ui/hooks/business/useDataFlowDiagramFamilyPersistence.ts",
+        "sha256": "494fb825de82d5f019402971673c53db0cdfd5dcb52046cf3d7db0f784ea0cb4"
+      },
+      {
+        "path": "src/shared/capabilities/studio/diagram-persistence/studioDataFlowDiagramFamily.ts",
+        "sha256": "da0b389f6357799d138fdf1fd402456ca8f3d855076a8d887b86bd38066d777d"
+      },
+      {
+        "path": "src/ui/lib/figures/figureFamilyQuickFill.ts",
+        "sha256": "ff39a199ea98e57fbce0bf64046e083f6e851e911fc0c073e2dc6d3b167fbc8e"
+      },
+      {
+        "path": "src/shared/capabilities/diagram/model/dataFlowDiagramFamilyEditing.ts",
+        "sha256": "57dd1d58478681a9ae27455dde2dad7cbd48f75a61d8106362f83e66911eb856"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/JieGraphFigureInspector.tsx",
+        "sha256": "c97f9ee106f00c99be0ef8faa1d6f48ee86f86712c3e83579eda102053d869d6"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/FigureFamilyQuickFillEditor.tsx",
+        "sha256": "0b94f43f353668f9a510d917fd665f23eca64a3eafc30a47ed7a22d485253aad"
+      }
+    ],
+    "architecture": [
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/JieGraphInspectorPanel.tsx",
+        "sha256": "f289c829fffc5e6ec14f3994e24c84f3ebc18153cfec8292eaf53b34b69bdd9c"
+      },
+      {
+        "path": "src/shared/capabilities/architecture-diagram/stackArchitectureSpecs.ts",
+        "sha256": "99c1f514133786e1e4c8d4ed2757a00f6a3e699ec2bf33c8ca43794f3b59f6be"
+      },
+      {
+        "path": "src/shared/contracts/studio/architectureDiagramIdentity.ts",
+        "sha256": "26353b52f0a27aaf8d8a9f08df37b938ba184cad70801c4551533dd8a85dd669"
+      },
+      {
+        "path": "src/shared/capabilities/architecture-diagram/architectureDiagramQuickFill.ts",
+        "sha256": "5b80a6b70358477bdc715326b856c01d5012270aab445f9192e32cd0a86d04d5"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/JieFigure/ArchitectureQuickFillEditor.tsx",
+        "sha256": "1580b816b70a5cf7a725a452037fe5a242929242f358793c0e698228c80f6de9"
+      }
+    ],
+    "use-case": [
+      {
+        "path": "src/shared/capabilities/diagram/use-case/editing/useCaseDiagramQuickFill.ts",
+        "sha256": "7356e387939b02e7a9253835944c2e3f7b282141b50492e64e6bd07e81ea72c8"
+      },
+      {
+        "path": "src/ui/components/generator/diagrams/UseCaseDiagram/UseCaseDiagramQuickFillEditor.tsx",
+        "sha256": "0103f56046006135e0bb9f62e4cf0a3801662abb7943d7abf8536b45694fa8f6"
+      },
+      {
+        "path": "src/shared/capabilities/diagram/use-case/editing/useCaseDiagramManualMaterializer.ts",
+        "sha256": "666f41b8b75f52dbc93eb7ac6f6748d8540bacc543570855706e79dda6773908"
+      }
+    ]
+  }
+}

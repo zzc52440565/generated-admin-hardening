@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-03",
+  "version": "2.2.3",
+  "scope": "完整提示词、安装后接续与GitHub公开分发",
+  "checks": {
+    "pythonToolTests": {
+      "status": "passed",
+      "count": 13
+    },
+    "skillMetadata": "passed",
+    "relativeLinks": {
+      "status": "passed",
+      "count": 57
+    },
+    "syntaxJsonYamlPython": "passed",
+    "credentialAndMachinePathReview": "passed",
+    "oldDownloads": {
+      "unchanged": 15
+    },
+    "nativeDiagramExamples": "passed: diagrams-only",
+    "diagramSourceFingerprints": "passed"
+  },
+  "publicSource": {
+    "repository": "zzc52440565/generated-admin-hardening",
+    "ref": "v2.2.3",
+    "skillPath": "skills/generated-admin-hardening"
+  },
+  "publicationEvidence": "同版本Release附加PUBLICATION-2.2.3.json记录构建后与公开安装实际结果",
+  "historicalBrowserEvidence": "validation-results-2.2.2.json",
+  "notRun": [
+    "本轮SQL引擎或SQL来源指纹",
+    "客户业务运行",
+    "数据库迁移",
+    "网站部署",
+    "全仓构建/全量产品测试",
+    "插件目录提交"
+  ]
+}

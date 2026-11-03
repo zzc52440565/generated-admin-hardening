@@ -1,0 +1,62 @@
+[
+  {
+    "path": "generated-admin-hardening/dist/generated-admin-hardening-standalone.md",
+    "sha256": "87d0732ef2452bd78767dd4888d87304590f94db57e37eabc37269033d958c5f"
+  },
+  {
+    "path": "generated-admin-hardening/PROMPT.md",
+    "sha256": "1eef913afa776ae7d5b956c9e1037736541d8544554cfe8d479f8b6d0e597286"
+  },
+  {
+    "path": "generated-admin-hardening/references/audit-checklist.md",
+    "sha256": "483d5c643b9f8a6c028759be21f0d0293ece1cc98427e408b5f160d52f4978cd"
+  },
+  {
+    "path": "generated-admin-hardening/references/code-patterns.md",
+    "sha256": "922269a355f5e2d807dee44f08cc9f7f7e8ff7bfe9af1584138e510cfc2ebdd1"
+  },
+  {
+    "path": "generated-admin-hardening/references/crud-rbac-gap.md",
+    "sha256": "ba220fc1fadd23db06aa4e25f903afa0285404e20e8a2d4b5c7ba7c88504435d"
+  },
+  {
+    "path": "generated-admin-hardening/references/master-detail-merge.md",
+    "sha256": "44ed13ca22fcccefdce8509d64e9c8b271eba7b0874c6c158ae9d780cc74ebc0"
+  },
+  {
+    "path": "generated-admin-hardening/references/project-type-matrix.md",
+    "sha256": "87515e51bcc36b8915ac26a08c1d9472caac2f74ee1f2478ab78d19d894211b5"
+  },
+  {
+    "path": "generated-admin-hardening/references/rbac-audit-redesign.md",
+    "sha256": "ed3c446999a8f1f602566f50c1ef5d86a71b1884b9002466eef458f5df87e230"
+  },
+  {
+    "path": "generated-admin-hardening/references/this-project-catalog.md",
+    "sha256": "d500b4dceb8e3dd0bead205d7841c54eb9e08f66e6549a47c196df1f04a19e01"
+  },
+  {
+    "path": "generated-admin-hardening/scripts/audit_buttons.py",
+    "sha256": "eda39511f0c2b101426961705c3ffa7bc3fc52393d02848bfb4e0d480252c21d"
+  },
+  {
+    "path": "generated-admin-hardening/scripts/audit_layout.py",
+    "sha256": "87eb1fea80f39db890975d4c550290da17030174d00c564de699b563a93874f6"
+  },
+  {
+    "path": "generated-admin-hardening/scripts/README.md",
+    "sha256": "1c2d9d748526c354da979b15b00f8017575a74cd706607304b3f19dc8e54b33b"
+  },
+  {
+    "path": "generated-admin-hardening/scripts/verify_filters.py",
+    "sha256": "cde7a1b0bf589b21e335e8f5453ba4e7e9fcfeac3046ad28d8a4fdb1bf149af1"
+  },
+  {
+    "path": "generated-admin-hardening/scripts/_common.py",
+    "sha256": "561fd8ed17f44eb0cbb45da79a464298a2e62c7ad3fe810a05193065a8a69614"
+  },
+  {
+    "path": "generated-admin-hardening/SKILL.md",
+    "sha256": "ef703f62b21a74af6f3faea096c312e52e6d471deef1203f9e01d0e4ac07eea4"
+  }
+]

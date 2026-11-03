@@ -1,0 +1,105 @@
+{
+  "date": "2026-11-03",
+  "version": "2.1.0",
+  "scope": "技能SQL重设计能力；未连接或变更业务数据库",
+  "skillMetadata": "passed",
+  "unitTests": {
+    "status": "passed",
+    "count": 13,
+    "updatedCoverage": "SQL交付模板和嵌套SQL附件收录便携版、版本校验文件"
+  },
+  "staticChecks": {
+    "status": "passed",
+    "localLinks": 39,
+    "pythonJsonYaml": true,
+    "uiMetadata": true,
+    "previousDownloadsUnchanged": true
+  },
+  "studio": {
+    "status": "passed",
+    "facts": {
+      "sourceFingerprints": "全部匹配",
+      "sqlCompatibility": {
+        "sourceFingerprints": "全部匹配",
+        "verification": "源码事实核对；未执行业务 SQL 或数据库对象"
+      },
+      "functionStructure": {
+        "nodes": 9,
+        "edges": 8,
+        "roundTrip": true
+      },
+      "umlClass": {
+        "addedClasses": 3,
+        "relations": 2,
+        "retainedOldClass": true,
+        "idempotent": true
+      },
+      "sequence": {
+        "participants": 4,
+        "messages": 7,
+        "events": 12,
+        "roundTrip": true
+      },
+      "flowchart": {
+        "nodes": 7,
+        "edges": 7,
+        "mergeIncoming": 2,
+        "invalidReferenceRejected": true
+      },
+      "05-dfd-context.txt": {
+        "nodes": 2,
+        "edges": 2
+      },
+      "05-dfd-level1.txt": {
+        "nodes": 3,
+        "edges": 4
+      },
+      "05-dfd-level2-1.0.txt": {
+        "nodes": 5,
+        "edges": 7
+      },
+      "dfdBoundaryBalance": true,
+      "useCase": {
+        "addedActors": 2,
+        "addedUseCases": 5,
+        "retainedOldActor": true,
+        "idempotent": true
+      },
+      "architecture": "源码与人工编辑说明核对；不存在可运行的快速填写解析入口"
+    }
+  },
+  "sqlDesignReview": {
+    "status": "passed",
+    "mode": "规范与系统源码兼容性审查",
+    "coverage": [
+      "表结构与约束",
+      "CREATE/INSERT",
+      "READ/SELECT",
+      "UPDATE",
+      "DELETE/作废",
+      "VIEW",
+      "PROCEDURE",
+      "TRIGGER",
+      "调用方迁移",
+      "新装/升级/恢复",
+      "图表同步"
+    ],
+    "databaseExecution": "unverified：未提供具体业务SQL或隔离数据库"
+  },
+  "browserSmoke": {
+    "status": "not-rerun",
+    "reason": "browser_audit.py及其浏览器用例未修改，保留2.0.0已通过证据"
+  },
+  "packageValidation": {
+    "status": "passed",
+    "skillZipFiles": 35,
+    "sourceZipFiles": 51,
+    "crcAndSha256": true,
+    "archivedBytesEqualSource": true,
+    "cleanDownloadInstall": true,
+    "existingInstallProtected": true,
+    "previousVersionUnchanged": true,
+    "sqlMaterialsInPortable": true,
+    "temporaryDirectoryRemoved": true
+  }
+}
