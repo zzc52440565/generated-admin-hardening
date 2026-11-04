@@ -1,4 +1,4 @@
 interface:
   display_name: "生成项目加固与 SQL 重设计"
-  short_description: "重设计初始 SQL 的增删改查、视图、过程与触发器，修复应用并同步七类图表"
-  default_prompt: "请使用 $generated-admin-hardening 加固当前生成项目，按真实业务重设计初始SQL的CRUD、视图、存储过程与触发器并迁移调用；验证后同步七类原生图表。系统流程和DFD各输出覆盖全部核心业务的完整图族正文，供一次填写保存。安装后本轮直接读取技能继续实施；完整约束见PROMPT.md。"
+  short_description: "逐页改造真实业务与循环复验，重设计SQL并同步七类图表"
+  default_prompt: "请使用 $generated-admin-hardening 加固当前生成项目，逐菜单逐页面判断合理列表优化或特殊业务工作页改造，完成业务复审、真实操作和返工复验闭环；按真实业务重设计初始SQL的CRUD、视图、存储过程与触发器并迁移调用；验证后同步七类原生图表。系统流程和DFD各输出覆盖全部核心业务的完整图族正文，供一次填写保存。安装后本轮直接读取技能继续实施；完整约束见PROMPT.md。"
