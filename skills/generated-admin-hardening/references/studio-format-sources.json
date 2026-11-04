@@ -1,5 +1,5 @@
 {
-  "verified_on": "2026-11-03",
+  "verified_on": "2026-11-04",
   "system": "CodeAutoGeneratorSystem / Studio",
   "sources": {
     "function-structure": [
@@ -9,7 +9,15 @@
       },
       {
         "path": "src/ui/components/generator/diagrams/JieFigure/FunctionStructureTreeEditor.tsx",
-        "sha256": "f381ccb377b171ed3ae18e429b6f633fdf16a838f213e8c6e041e9efd24b0210"
+        "sha256": "7bacecb12269ae05465f8ba4eafcff122a6985f06147eac604f1681ee30336e0"
+      },
+      {
+        "path": "src/shared/capabilities/diagram/export/markdown/FunctionStructureDisplayProjection.ts",
+        "sha256": "4ba99108c6f29be9cb6adb30599b36e7a566b5f87fb16992341c3584b6c64076"
+      },
+      {
+        "path": "src/ui/lib/figures/specUtils.ts",
+        "sha256": "760e5f94455531b5cf994f93f80fe0e37fc05a3099e92de22bd2dff0bd3a9ed0"
       }
     ],
     "uml-class": [
@@ -23,7 +31,7 @@
       },
       {
         "path": "src/ui/components/generator/diagrams/JieFigure/UmlClassDomainInspector.tsx",
-        "sha256": "42e86c605a63d9bbff05e2c72fba75bc6d940393cb6cf0c39d2dd6e8f19c0776"
+        "sha256": "20ee27833bc41267b6e3b6a7b5c68ccb5f406cf82235f7298e9251d75ecb6aa6"
       }
     ],
     "sequence": [
@@ -33,7 +41,11 @@
       },
       {
         "path": "src/ui/components/generator/diagrams/JieFigure/SequenceTaskEditor.tsx",
-        "sha256": "78001304dd53cabd1bb8d434029d0968557388d47b83754a307a6581961a52b5"
+        "sha256": "cea56e4b34711e6a73d1cb3451fdd79a9f6232ab99623ac0fa246d1a0e3a8294"
+      },
+      {
+        "path": "src/ui/lib/figures/figureFamilyQuickFill.ts",
+        "sha256": "440d72d045d74df2db86f30ac860f98bb573e51a382368205939e31f82810081"
       }
     ],
     "flowchart": [
@@ -47,15 +59,15 @@
       },
       {
         "path": "src/ui/components/generator/diagrams/JieFigure/GraphTaskEditors.tsx",
-        "sha256": "74a982522670e2a70365e0a6a863833c896b9b2a6716feb5aa0514d812e2d994"
+        "sha256": "8ac56dc57f25a68111dd6cfcd84f028b528d0186bbb10c6e9e9463e734144224"
       },
       {
         "path": "src/ui/lib/figures/figureFamilyQuickFill.ts",
-        "sha256": "ff39a199ea98e57fbce0bf64046e083f6e851e911fc0c073e2dc6d3b167fbc8e"
+        "sha256": "440d72d045d74df2db86f30ac860f98bb573e51a382368205939e31f82810081"
       },
       {
         "path": "src/shared/capabilities/studio/diagram-persistence/studioProjectFigureFamily.ts",
-        "sha256": "fbf25c6662ce2e47e97e513d876a0832a68c93e4ef20037f11e077e9a6ad04c5"
+        "sha256": "39cae6eb57d50ea984c9068a00b8074293b628e8e55cddf8b90fd36084f6591f"
       },
       {
         "path": "src/shared/contracts/studio/studioProjectFigureTransport.ts",
@@ -63,7 +75,7 @@
       },
       {
         "path": "src/ui/components/generator/diagrams/JieFigure/FigureFamilyQuickFillEditor.tsx",
-        "sha256": "0b94f43f353668f9a510d917fd665f23eca64a3eafc30a47ed7a22d485253aad"
+        "sha256": "113fcf3c9950b0ffe7351dee9a0bf9836400047ff805059ba580e0b835f394cd"
       }
     ],
     "data-flow": [
@@ -77,7 +89,7 @@
       },
       {
         "path": "src/ui/components/generator/diagrams/JieFigure/GraphTaskEditors.tsx",
-        "sha256": "74a982522670e2a70365e0a6a863833c896b9b2a6716feb5aa0514d812e2d994"
+        "sha256": "8ac56dc57f25a68111dd6cfcd84f028b528d0186bbb10c6e9e9463e734144224"
       },
       {
         "path": "src/shared/capabilities/diagram/model/dataFlowDiagramFamilyMaterializer.ts",
@@ -93,7 +105,7 @@
       },
       {
         "path": "src/ui/lib/figures/figureFamilyQuickFill.ts",
-        "sha256": "ff39a199ea98e57fbce0bf64046e083f6e851e911fc0c073e2dc6d3b167fbc8e"
+        "sha256": "440d72d045d74df2db86f30ac860f98bb573e51a382368205939e31f82810081"
       },
       {
         "path": "src/shared/capabilities/diagram/model/dataFlowDiagramFamilyEditing.ts",
@@ -101,17 +113,17 @@
       },
       {
         "path": "src/ui/components/generator/diagrams/JieFigure/JieGraphFigureInspector.tsx",
-        "sha256": "c97f9ee106f00c99be0ef8faa1d6f48ee86f86712c3e83579eda102053d869d6"
+        "sha256": "5bdf122d0efd79b261f146efe8ef129a7fc7eea477308050a89450c83a66c153"
       },
       {
         "path": "src/ui/components/generator/diagrams/JieFigure/FigureFamilyQuickFillEditor.tsx",
-        "sha256": "0b94f43f353668f9a510d917fd665f23eca64a3eafc30a47ed7a22d485253aad"
+        "sha256": "113fcf3c9950b0ffe7351dee9a0bf9836400047ff805059ba580e0b835f394cd"
       }
     ],
     "architecture": [
       {
         "path": "src/ui/components/generator/diagrams/JieFigure/JieGraphInspectorPanel.tsx",
-        "sha256": "f289c829fffc5e6ec14f3994e24c84f3ebc18153cfec8292eaf53b34b69bdd9c"
+        "sha256": "27449d59326d95242a6d767dcb655c1adf95161b4cba387eab758af7e23cbcce"
       },
       {
         "path": "src/shared/capabilities/architecture-diagram/stackArchitectureSpecs.ts",
@@ -123,11 +135,19 @@
       },
       {
         "path": "src/shared/capabilities/architecture-diagram/architectureDiagramQuickFill.ts",
-        "sha256": "5b80a6b70358477bdc715326b856c01d5012270aab445f9192e32cd0a86d04d5"
+        "sha256": "55cb652071b9c7cdfc9ea0b0b208ce64a82fac7bc4f3eda6f4c333ff54e40e6c"
       },
       {
         "path": "src/ui/components/generator/diagrams/JieFigure/ArchitectureQuickFillEditor.tsx",
-        "sha256": "1580b816b70a5cf7a725a452037fe5a242929242f358793c0e698228c80f6de9"
+        "sha256": "1c6171bb7cec4e19934aca20c7c5972854260dfb9af2424b484ecb81dc1ccacb"
+      },
+      {
+        "path": "src/shared/capabilities/architecture-diagram/architectureDiagramFrame.ts",
+        "sha256": "7affe115f4188e6839a31c59f0ce80e6a478f6404e073e440e5649b06c018681"
+      },
+      {
+        "path": "src/shared/capabilities/diagram/render/jie-graph/layout.ts",
+        "sha256": "21b58e276ab4e20847d22f3517fb909b8571076958ea660992f5cd0e2c7158eb"
       }
     ],
     "use-case": [
@@ -137,7 +157,7 @@
       },
       {
         "path": "src/ui/components/generator/diagrams/UseCaseDiagram/UseCaseDiagramQuickFillEditor.tsx",
-        "sha256": "0103f56046006135e0bb9f62e4cf0a3801662abb7943d7abf8536b45694fa8f6"
+        "sha256": "c61df75cb5846c69b76c9c6fd3365feb436ddafeb8895634aa21646290985638"
       },
       {
         "path": "src/shared/capabilities/diagram/use-case/editing/useCaseDiagramManualMaterializer.ts",

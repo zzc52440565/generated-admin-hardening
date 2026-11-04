@@ -1,38 +1,103 @@
 {
-  "date": "2026-11-03",
-  "version": "2.2.3",
-  "scope": "完整提示词、安装后接续与GitHub公开分发",
-  "checks": {
-    "pythonToolTests": {
-      "status": "passed",
-      "count": 13
-    },
-    "skillMetadata": "passed",
-    "relativeLinks": {
-      "status": "passed",
-      "count": 57
-    },
-    "syntaxJsonYamlPython": "passed",
-    "credentialAndMachinePathReview": "passed",
-    "oldDownloads": {
-      "unchanged": 15
-    },
-    "nativeDiagramExamples": "passed: diagrams-only",
-    "diagramSourceFingerprints": "passed"
+  "version": "2.3.0",
+  "validatedOn": "2026-11-04",
+  "skillMetadata": "passed",
+  "installerAndPackageTests": 13,
+  "applicationUnitTests": 104,
+  "quickFillBrowserRegression": {
+    "passed": 18,
+    "scope": "桌面/手机七种编辑器及架构/类图全文回填，夹具"
   },
-  "publicSource": {
-    "repository": "zzc52440565/generated-admin-hardening",
-    "ref": "v2.2.3",
-    "skillPath": "skills/generated-admin-hardening"
+  "realProjectDiagrams": {
+    "files": 7,
+    "functionStructure": {
+      "module": {
+        "nodes": 22,
+        "edges": 21,
+        "box": {
+          "x": -505,
+          "y": -155.5,
+          "w": 1010,
+          "h": 311
+        }
+      },
+      "operation": {
+        "nodes": 68,
+        "edges": 67,
+        "box": {
+          "x": -1250,
+          "y": -258,
+          "w": 2500,
+          "h": 516
+        }
+      },
+      "detail": {
+        "nodes": 103,
+        "edges": 102,
+        "box": {
+          "x": -1709,
+          "y": -380.5,
+          "w": 3418,
+          "h": 761
+        }
+      }
+    },
+    "classes": 11,
+    "sequenceDiagrams": 13,
+    "flowcharts": 15,
+    "dataFlowDiagrams": 10,
+    "architecture": {
+      "nodes": 11,
+      "edges": 10,
+      "box": {
+        "x": -374.6,
+        "y": -747,
+        "w": 749.2,
+        "h": 1464
+      }
+    },
+    "useCaseActors": 3,
+    "verification": "正式整套解析、schema、往返和图形投影/几何；不代表网页保存或业务真实性已验收"
   },
-  "publicationEvidence": "同版本Release附加PUBLICATION-2.2.3.json记录构建后与公开安装实际结果",
-  "historicalBrowserEvidence": "validation-results-2.2.2.json",
-  "notRun": [
-    "本轮SQL引擎或SQL来源指纹",
-    "客户业务运行",
-    "数据库迁移",
-    "网站部署",
-    "全仓构建/全量产品测试",
-    "插件目录提交"
-  ]
+  "sql": {
+    "status": "passed",
+    "statements": 112,
+    "objects": {
+      "tables": 10,
+      "views": 4,
+      "procedures": 1,
+      "triggers": 5
+    },
+    "demoAccounts": 19,
+    "password123456Verified": 19,
+    "checks": {
+      "quizStatusMismatch": 0,
+      "answerWithoutEnrollment": 0,
+      "scoreOverflow": 0,
+      "rerunPreservesAnswers": true,
+      "disabledCategoryRejected": true
+    },
+    "existingDatabaseModified": false
+  },
+  "limits": [
+    "单测与夹具不能证明其他模型首次执行的业务决策全部正确",
+    "真实网站的完整项目保存验收单独记录，不以解析通过代替",
+    "未执行生产迁移或真实用户批量改密"
+  ],
+  "realBrowserInput": {
+    "allSevenKindsApplied": true,
+    "dataFlowSavedAndReloaded": 10,
+    "sequenceSavedAndReloaded": 13,
+    "flowchartsSavedAndReloaded": 15,
+    "functionDepths": [
+      22,
+      68,
+      103
+    ],
+    "architectureNodes": 11,
+    "classes": 11,
+    "useCaseActors": 3,
+    "pageErrors": 0,
+    "scope": "独占测试项目，真实服务端；原用户项目只读；类图/用例此轮核对应用，保存回读按类别分别记录"
+  }
 }

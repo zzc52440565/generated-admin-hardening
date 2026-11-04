@@ -2,19 +2,19 @@
 
 发布仓库：https://github.com/zzc52440565/generated-admin-hardening
 
-当前发布版本：v2.2.3。完整提示词与技能放在同一目录，固定版本入口为`skills/generated-admin-hardening/PROMPT.md`，安装路径为`skills/generated-admin-hardening`。
+当前发布版本：v2.3.0。完整提示词与技能放在同一目录，固定版本入口为`skills/generated-admin-hardening/PROMPT.md`，安装路径为`skills/generated-admin-hardening`。
 
 ## 用户入口
 
 让用户复制[完整提示词](../skills/generated-admin-hardening/PROMPT.md)。它会检测现有安装，缺失时自动使用可用skill-installer或校验后的同版本源码包，默认项目级安装；安装后读取SKILL.md继续工作。已安装不覆盖，缺少新协议时可临时读取固定版本参考，保留旧安装。
 
-只需下载时使用[Release](https://github.com/zzc52440565/generated-admin-hardening/releases/tag/v2.2.3)：
+只需下载时使用[Release](https://github.com/zzc52440565/generated-admin-hardening/releases/tag/v2.3.0)：
 
-- generated-admin-hardening-2.2.3.zip：完整技能目录。
-- generated-admin-hardening-2.2.3-source.zip：同版本源码、提示词、安装器与验证工具。
-- generated-admin-hardening-2.2.3-portable.md：无技能目录支持时的参考文本，不含可执行脚本。
-- SHA256SUMS-2.2.3.txt：该版本三个下载物的SHA256；校验完整性不替代确认发布来源。
-- PUBLICATION-2.2.3.json：发布后公开下载、摘要与隔离安装的独立验收记录，不参与源码包自身摘要。
+- generated-admin-hardening-2.3.0.zip：完整技能目录。
+- generated-admin-hardening-2.3.0-source.zip：同版本源码、提示词、安装器与验证工具。
+- generated-admin-hardening-2.3.0-portable.md：无技能目录支持时的参考文本，不含可执行脚本。
+- SHA256SUMS-2.3.0.txt：该版本三个下载物的SHA256；校验完整性不替代确认发布来源。
+- PUBLICATION-2.3.0.json：发布后公开下载、摘要与隔离安装的独立验收记录，不参与源码包自身摘要。
 
 ## 后续版本
 

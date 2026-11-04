@@ -157,4 +157,68 @@ assert.equal(dfdFamily.level2.length, 1);
 assert.equal(dfdFamily.balanceProof.contextToLevel1.length, 2);
 assert.equal(dfdFamily.balanceProof.level1ToLevel2.length, 4);
 facts.wholeFamilies = { systemFlowcharts: 3, dataFlowDiagrams: 3, atomicFamilyInput: true };
+const seqFamily = familyFill.parseSystemSequenceFamilyQuickFill(text('03-sequence-family.txt'));
+assert.equal(seqFamily.members.length, 1);
+assert.equal(familyFill.parseSystemSequenceFamilyQuickFill(familyFill.serializeSystemSequenceFamilyQuickFill([
+  seqFamily.root, ...seqFamily.members.map((member: {spec: unknown}) => member.spec),
+])).members.length, 1);
+facts.wholeSequenceFamily = {members: 2, roundTrip: true};
+
+// 可选验证用户产物：使用与网站相同的完整解析器，不能只验示例或逐节解析。
+const inputIndex = process.argv.indexOf('--input-dir');
+if (inputIndex >= 0) {
+  assert(process.argv[inputIndex + 1], '--input-dir 缺少目录');
+  const inputDir = path.resolve(process.argv[inputIndex + 1]);
+  const expected = ['01-function-structure.txt', '02-uml-class.txt', '03-sequence-family.txt',
+    '04-system-flowchart-family.txt', '05-data-flow-family.txt', '06-architecture.txt', '07-use-case.txt'];
+  assert.deepEqual(fs.readdirSync(inputDir).filter((name) => name.endsWith('.txt')).sort(), [...expected].sort(),
+    '最终必须每类一份正文，共七份；不能留旧分图文件');
+  const input = (name: string) => fs.readFileSync(path.join(inputDir, name), 'utf8');
+  const layoutApi = await load('src/shared/capabilities/diagram/render/jie-graph/layout.ts');
+  const projection = await load('src/shared/capabilities/diagram/export/markdown/FunctionStructureDisplayProjection.ts');
+  const geometry = (spec: any, noOverlap = false) => {
+    const layout = layoutApi.computeGraphLayout(spec);
+    assert.equal(layout.nodes.length, spec.nodes.length);
+    for (const node of layout.nodes) assert([node.x, node.y, node.width, node.height].every(Number.isFinite));
+    if (noOverlap) for (let i = 0; i < layout.nodes.length; i++) for (let j = i + 1; j < layout.nodes.length; j++) {
+      const a = layout.nodes[i], b = layout.nodes[j];
+      assert(!(Math.abs(a.x - b.x) < (a.width + b.width) / 2 - 0.01 &&
+        Math.abs(a.y - b.y) < (a.height + b.height) / 2 - 0.01), `节点重叠：${a.label} / ${b.label}`);
+    }
+    return {nodes: layout.nodes.length, edges: spec.edges.length, box: layoutApi.computeGraphFigureViewBox(spec, layout, 0)};
+  };
+  const fn = specUtils.normalizeGraphFigureSpec(functionFill.buildFunctionStructureSpecFromQuickFill(
+    graph('app:function-structure', 'function-structure'), input(expected[0])));
+  const depths: Record<string, unknown> = {};
+  for (const depth of ['module', 'operation', 'detail']) {
+    const projected = projection.projectFunctionStructureSpecForDisplay(projection.withFunctionStructureDisplayDepth(fn, depth));
+    depths[depth] = geometry(projected, true);
+    const auto = layoutApi.computeGraphLayoutNodes({...projected, layout: {...projected.layout, positions: undefined}});
+    const coords = (nodes: any[]) => Object.fromEntries(nodes.map(({id, x, y, width, height}) => [id, {x, y, width, height}]));
+    assert.deepEqual(coords(layoutApi.computeGraphLayoutNodes(projected)), coords(auto), `${depth}仍在使用隐藏层坐标`);
+  }
+  const classes = umlFill.buildDomainUmlClassFromQuickFill(baseUml, input(expected[1]));
+  umlSchema.UmlClassFigureSpecSchema.parse(classes);
+  const seqs = familyFill.parseSystemSequenceFamilyQuickFill(input(expected[2]));
+  const seqSpecs = [seqs.root, ...seqs.members.map((member: {spec: unknown}) => member.spec)];
+  assert.equal(familyFill.parseSystemSequenceFamilyQuickFill(familyFill.serializeSystemSequenceFamilyQuickFill(seqSpecs)).members.length, seqs.members.length);
+  const flows = familyFill.parseSystemFlowchartFamilyQuickFill(input(expected[3]));
+  const flowSpecs = [flows.root, ...flows.members.map((member: {spec: unknown}) => member.spec)];
+  flowSpecs.forEach((spec: any) => geometry(spec));
+  const wholeDfd = familyFill.parseDataFlowFamilyQuickFill(familyFixture.validFamily(), input(expected[4]));
+  const materializer = await load('src/shared/capabilities/diagram/model/dataFlowDiagramFamilyMaterializer.ts');
+  const dfdViews = materializer.materializeDataFlowDiagramFamily(wholeDfd);
+  dfdViews.members.forEach((member: {spec: unknown}) => geometry(member.spec));
+  assert.equal(familyFill.parseDataFlowFamilyQuickFill(wholeDfd, familyFill.serializeDataFlowFamilyQuickFill(wholeDfd)).level2.length, wholeDfd.level2.length);
+  const arch = architecture.buildArchitectureDiagramSpecFromQuickFill(graph('app:architecture-diagram:ssm:layered-block'), input(expected[5]));
+  const archGeometry = geometry(arch, true);
+  const useCommands = useCase.buildUseCaseDiagramQuickFillCommands({aggregate, text: input(expected[6]),
+    createCommandId: (kind: string) => `input:${kind}:${++commandNumber}`});
+  const useNext = reducer.reduceUseCaseDiagramManualCommandsWithMaterialization({state: reducer.createUseCaseDiagramManualState(aggregate), commands: useCommands.commands}).materialization.aggregate;
+  facts.realInput = {files: 7, functionStructure: depths, classes: classes.classifiers.length,
+    sequenceDiagrams: seqSpecs.length, flowcharts: flowSpecs.length, dataFlowDiagrams: dfdViews.members.length,
+    architecture: archGeometry, useCaseActors: useNext.actors.length,
+    verification: '正式整套解析、schema、往返和图形投影/几何；不代表网页保存或业务真实性已验收'};
+}
+
 console.log(JSON.stringify({status: 'passed', facts}, null, 2));
