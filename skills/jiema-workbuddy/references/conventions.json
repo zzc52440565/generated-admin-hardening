@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "localDemo": {
+    "password": "123456",
+    "scope": "仅限本轮新建本机隔离开发实例及全部合成演示/测试账号；禁止远程或生产使用，不改既有管理员口令",
+    "hosts": ["127.0.0.1", "localhost", "::1"],
+    "encoding": "application-password-encoder",
+    "adminUsername": "admin"
+  },
+  "actions": { "maxKeysPerAction": 3, "dynamicKeys": "reject", "namedEventPrefix": "event:" },
+  "interaction": { "maxDefaultChoiceCards": 3, "maxQuestionsPerCard": 4, "maxNoProgressAttempts": 3 }
+}

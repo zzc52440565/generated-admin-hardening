@@ -1,0 +1,20 @@
+# 本机开发运行时版本模板（可选）
+#
+# 用法：复制到项目目录或用户级 mise 配置后按需修改；改完执行 `mise install`。
+# 约束：
+#   1. 这里的版本必须先通过 references/version-matrix.md 的闸门校验：
+#      先生成 version-selection，再写进本文件，不要照抄示例版本号。
+#   2. Windows 原生不支持 mise 的 asdf 插件，Maven/Go 请走官方压缩包。
+#   3. 本文件只描述运行时，不负责数据库服务与图形工具。
+[tools]
+java = "__JAVA_MAJOR__"
+node = "__NODE_MAJOR__"
+python = "__PYTHON_MINOR__"
+
+[tasks.verify]
+description = "检查所有运行时是否可用"
+run = """
+java -version
+node -v
+python3 -V || python -V
+"""

@@ -1,0 +1,84 @@
+PostgreSQL（Windows）无人值守安装参数说明
+==========================================
+
+用途：用官方安装器 / winget 安装 PostgreSQL 时，必须把下面这组参数透传给
+安装器本体。不传这些参数，安装器会弹出图形向导；在无人值守环境里会一直
+挂着等点击，看起来像「装到一半卡死」。
+
+---------------------------------------------------------------------
+一、调用形状
+---------------------------------------------------------------------
+
+  <installer>.exe --mode unattended --unattendedmodeui none ^
+    --serverport __PORT__ ^
+    --superpassword __SUPERUSER_PASSWORD_FROM_USER__ ^
+    --prefix "__PREFIX__" ^
+    --datadir "__DATADIR__" ^
+    --enable-components server,commandlinetools
+
+若走 winget，把上面整串放进 --override，并同时加 winget 自己的
+--accept-source-agreements --accept-package-agreements --disable-interactivity。
+
+注意：
+- `--override` 之后的内容是**安装器参数**，不是 winget 参数。
+- 路径含空格时在 PowerShell 里要用 \" 转义，或整体用单引号包住外层。
+- `--disable-interactivity` 属 winget；`--mode unattended` 属安装器。
+
+---------------------------------------------------------------------
+二、参数含义
+---------------------------------------------------------------------
+
+--mode unattended
+    真正的静默模式。与 --unattendedmodeui none 成对使用。
+
+--unattendedmodeui none
+    连进度条窗口都不要（none / minimal / minimalWithDialogs）。
+
+--serverport <port>
+    监听端口，默认 5432。同机多实例必须改端口。
+
+--superpassword <password>
+    postgres 超级用户口令。**必须由用户提供**：
+    - 技能不设默认弱口令，也不把口令写进命令行或日志；
+    - 传参时优先用 0600 的响应文件或安装器支持的 stdin 方式；
+    - 只有一种情况允许弱口令：用户明确同意，且实例只用于本机开发并
+      在 postgresql.conf 里设为 listen_addresses='localhost'。
+
+--prefix <dir>
+    程序目录。装在用户可写的独立前缀下，避免提权。
+
+--datadir <dir>
+    数据目录，**必须与程序目录分开**：升级程序时可保留数据。
+    datadir 一旦确定，后续不能靠重装改变（要 initdb 新集群 + 导入）。
+
+--enable-components server,commandlinetools
+    只装服务端与命令行工具；不装 pgAdmin / Stack Builder
+    （后者会在安装末尾再弹联网窗口，破坏无人值守）。
+
+---------------------------------------------------------------------
+三、装完必须核对的三件事
+---------------------------------------------------------------------
+
+1) 服务名与启动类型
+     Get-Service postgresql*        # 形如 postgresql-x64-17
+     期望 Running；启动类型由用户决定，技能不擅自改成自启。
+
+2) 端口与监听地址（改配置后必须重启才生效）
+     psql -U postgres -h 127.0.0.1 -c "show port; show listen_addresses;"
+     期望 __PORT__ / localhost
+
+3) 免交互连接验证（口令经 PGPASSFILE 或 0600 的 .pgpass，不写在命令行）
+     设置好后执行：psql -U postgres -h 127.0.0.1 -w -c "select version();"
+
+---------------------------------------------------------------------
+四、常见失败
+---------------------------------------------------------------------
+
+报错 "Error running ... initdb" 或服务起不来
+    → 多为 datadir 权限问题或路径含空格/中文；目录非空时 initdb 会拒绝。
+
+装完 psql 找不到
+    → commandlinetools 未启用，或 <prefix>\bin 不在 PATH。
+
+想从旧大版本换到新大版本
+    → **不能原地替换**：pg_dumpall 导出 → 新集群初始化 → 导入。

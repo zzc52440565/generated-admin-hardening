@@ -1,3 +1,8 @@
+# 捷码技能分发
+
+- **WorkBuddy 完整技能 3.2.0**：[下载与安装](docs/WORKBUDDY.md) · [固定版本](https://github.com/zzc52440565/generated-admin-hardening/releases/tag/workbuddy-v3.2.0) · [技能入口](skills/jiema-workbuddy/SKILL.md)。角色 × 目标菜单 × 业务页面固定派发，按钮、主从和复测保留页内。
+- **独立加固技能 2.4.0**：下面保留原入口和安装方式，两套技能使用不同安装目录与版本线。
+
 # generated-admin-hardening 2.4.0
 
 对脚手架/生成器项目进行业务加固、初始SQL重设计和真实验证，再按最终实现同步Studio七类图表。

@@ -1,0 +1,68 @@
+{
+  "exampleOnly": true,
+  "status": "unverified",
+  "method": "diagram_status",
+  "fromDesignRevision": 1,
+  "entityCount": 3,
+  "fieldCount": 13,
+  "relationCount": 2,
+  "entities": [
+    "Account",
+    "Order",
+    "OrderItem"
+  ],
+  "relations": [
+    {
+      "id": "example-order-customer",
+      "name": "提交",
+      "sourceEntityId": "example-order",
+      "targetEntityId": "example-account",
+      "sourcePropertyId": "example-order-customer-id",
+      "cardinality": "N:1",
+      "keyPairs": [
+        {
+          "sourcePropertyId": "example-order-customer-id",
+          "targetPropertyId": "example-account-id"
+        }
+      ],
+      "nullability": [
+        {
+          "sourcePropertyId": "example-order-customer-id",
+          "nullable": false
+        }
+      ],
+      "readingDirection": "target-to-source",
+      "meaning": "教学假设：一个客户可提交多张订单；每张订单必须由一个客户提交。物理外键 Order.customerId 指向 Account.id，业务句阅读方向相反。",
+      "factIds": [
+        "example-customer-submit"
+      ]
+    },
+    {
+      "id": "example-item-order",
+      "name": "包含",
+      "sourceEntityId": "example-item",
+      "targetEntityId": "example-order",
+      "sourcePropertyId": "example-item-order-id",
+      "cardinality": "N:1",
+      "keyPairs": [
+        {
+          "sourcePropertyId": "example-item-order-id",
+          "targetPropertyId": "example-order-id"
+        }
+      ],
+      "nullability": [
+        {
+          "sourcePropertyId": "example-item-order-id",
+          "nullable": false
+        }
+      ],
+      "readingDirection": "target-to-source",
+      "meaning": "教学假设：一张订单包含一至多条明细；每条明细只能属于一张订单。物理外键 OrderItem.orderId 指向 Order.id；不由该外键单独推断领域组合生命周期。",
+      "factIds": [
+        "example-submit-transaction"
+      ]
+    }
+  ],
+  "comparison": "教学格式：所有 ID、数量和 factIds 均是假设，真实报告必须引用当前 project_show 与真实需求/SQL/源码；不能用示例通过门禁。",
+  "rawReceiptPath": null
+}

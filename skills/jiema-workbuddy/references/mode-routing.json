@@ -1,0 +1,2763 @@
+{
+  "schema": "jiema-workbuddy/mode-routing",
+  "version": 15,
+  "updated": "2026-11-09",
+  "note": "stages 是唯一阶段定义；routes 仅引用阶段或阶段组；target 是交付范围唯一真值。文档由同步器生成。旧输入只在迁移边界归一，所有任务使用同一解析器。检查点只核对已记录证据，不认证真实执行。",
+  "owners": {
+    "workbuddy": "WorkBuddy 模型：理解需求、设计结构/关系/角色权限、只读分析源码、读写本地代码、编排阶段与判断验收",
+    "host": "WorkBuddy 宿主：命令执行、文件读写、网络、权限确认、敏感信息保护",
+    "mcp": "捷码 MCP：目录、合同、预检、建项、生成、计费回执、下载、图稿版本保存与回读",
+    "user": "用户：技术栈与业务选择、账号授权、网页确认付费、系统级修改授权、是否重建"
+  },
+  "targets": {
+    "diagrams": {
+      "label": "只要图",
+      "terminalStage": "DELIVERY.FINAL",
+      "capabilities": {
+        "generate": false,
+        "localRuntime": false,
+        "hardening": false,
+        "diagrams": true
+      },
+      "meaning": "整套八类图；需求/SQL绑定设计事实，已有源码绑定真实实现，不生成下载或配置环境"
+    },
+    "system": {
+      "label": "只要系统",
+      "terminalStage": "DELIVERY.FINAL",
+      "capabilities": {
+        "generate": true,
+        "localRuntime": true,
+        "hardening": true,
+        "diagrams": false
+      },
+      "meaning": "完整源码、本地运行、数据库与业务改造及真实验收；不要求手工图稿"
+    },
+    "full": {
+      "label": "要全套",
+      "terminalStage": "DELIVERY.FINAL",
+      "capabilities": {
+        "generate": true,
+        "localRuntime": true,
+        "hardening": true,
+        "diagrams": true
+      },
+      "meaning": "系统完整交付后，以最终实现制作八类图并核对在线ER一致"
+    },
+    "preview": {
+      "terminalByRoute": {
+        "requirement": "CREATE.A4",
+        "sql": "CREATE.B3",
+        "source": "CREATE.C3",
+        "template": "CREATE.D1",
+        "manual-structure": "CREATE.A4"
+      },
+      "requiresUserScopeQuote": true,
+      "meaning": "仅用户明确要求只读分析或建项前预演时使用",
+      "label": "只读预演",
+      "internal": true
+    },
+    "source-only": {
+      "label": "仅源码（原有显式限缩范围）",
+      "internal": true,
+      "terminalStage": "DELIVERY.FINAL",
+      "capabilities": {
+        "generate": true,
+        "localRuntime": false,
+        "hardening": false,
+        "diagrams": false
+      },
+      "meaning": "保留明确只下载源码的历史范围，不称系统验收完成"
+    }
+  },
+  "interaction": {
+    "choiceTool": "AskUserQuestion",
+    "maxQuestionsPerCall": 4,
+    "optionsPerQuestion": {
+      "min": 2,
+      "max": 4
+    },
+    "otherInput": "宿主每题内置的其他补充输入框；不得额外问是否补充",
+    "continuation": "用户点选后同一任务自动续跑，不能要求另发继续",
+    "waitingStatus": "awaiting_user",
+    "browserHandoff": {
+      "reference": "browser-handoff.md",
+      "owner": "host",
+      "target": "WorkBuddy 内置浏览器、用户可见的右侧标签页",
+      "tools": "按当前宿主工具清单选择内置浏览器导航、页面回读与截图能力；不假设固定工具名，不列入捷码 MCP 白名单",
+      "capabilityProbe": "动作前先按当前宿主工具清单与组件状态判定通道，结果写进交接记录 channel；不假设固定工具名，不列入捷码 MCP 白名单",
+      "channels": {
+        "builtin": "WorkBuddy 内置浏览器：Agent 导航并在右侧面板实时显示，只有此通道可写「已在右侧打开」",
+        "independent": "用户自装的 Chrome/Edge/QQ 浏览器（需安装 WorkBuddy 扩展）：页面显示在用户自己的浏览器，不得写成右侧展示",
+        "none": "无可用浏览器工具或组件未安装：记 unavailable 并给一次「设置 → 智能体 → 浏览器操控」安装引导，不伪造打开"
+      },
+      "evidence": "项目外检查点目录/browser-handoff.json；原阶段产物引用，不改变已冻结源码摘要",
+      "authorization": "先connect_status；未认证才connect_start并自动打开verificationUrl；用户本人确认，connect_poll按retryAfterSeconds有界轮询，authenticated后同任务续跑",
+      "polling": {
+        "maxWindowSeconds": 120,
+        "respectExpiresAt": true,
+        "maxAutomaticCodeRenewals": 1
+      },
+      "eventConditions": {
+        "authorization": "仅用户决定创建后且connect_status未认证，或原任务确实401时触发；已认证跳过",
+        "online-project": "只使用原建项或回读返回的editUrl",
+        "local-initial": "ENV.VERIFY 仅对 Web 运行目标触发；HARD.GAPS 复用已有交接记录；documentation 不适用",
+        "local-final": "仅任务包含实际Web运行目标时触发，不为源码documentation安装或启动环境",
+        "diagrams": "DIA.SAVE 保存与接口回读后刷新既有在线项目标签页"
+      },
+      "fallback": "缺组件或真实导航失败时记录原因（含 channel=none/unavailable），恢复一次后才提供WorkBuddy内置浏览器可点击备用链接；不能默认要求复制网址，也不用系统open、外部无头浏览器或HTTP 200冒充",
+      "boundary": "browserHandoffs是宿主执行合同，检查点只能核对已登记材料，不能证明浏览器真实打开；旧任务只补当前交接，不重做建项生成"
+    },
+    "maxDefaultChoiceCards": 3,
+    "allowedInterruptions": [
+      "personal-login-or-web-authorization",
+      "real-payment",
+      "system-install-or-permission",
+      "critical-business-or-high-risk-ambiguity"
+    ],
+    "feedback": {
+      "start": "当前阶段：{name} · 目标：{goal} · 已完成：{completed} · 产出物：{artifacts} · 下一步：{next} · 是否需要你：{userActionOrNo}",
+      "end": "{name}：{status} · 已完成：{completed} · 产出物：{evidence} · 下一步：{next} · 是否需要你：{userActionOrNo}",
+      "forbidden": [
+        "你点头我就继续",
+        "回复继续后开始下一阶段",
+        "已在右侧打开（无 builtin 回执）",
+        "全流程通过（有 failed/unverified）",
+        "安装完等于业务完成"
+      ]
+    },
+    "decisionPolicy": {
+      "reuseOriginalRequest": true,
+      "deduplicateBy": "questionKey + scopeDigest",
+      "defaultMissingStack": "采用目录推荐并告知，不因低影响选型强制提问",
+      "cards": [
+        "缺失的交付目标及关键业务事实（最多4题，已明确跳过）",
+        "尚未明确的创建/生成与费用范围（原话覆盖跳过）",
+        "实际系统安装权限（无系统动作跳过）"
+      ],
+      "resume": "原生答复返回同任务继续；本人登录/付款按服务回读恢复，不把点选当成功"
+    }
+  },
+  "tools": {
+    "free": [
+      "connect_status",
+      "platform_catalog",
+      "schema_get",
+      "new_request_id",
+      "project_preflight",
+      "preview_resume",
+      "project_show",
+      "project_sql_preview",
+      "local_snapshot",
+      "source_link",
+      "diagram_status",
+      "billing_quote",
+      "billing_status",
+      "generation_status"
+    ],
+    "billable": [
+      "project_create",
+      "project_sql_commit",
+      "project_template_use",
+      "project_source_doc_create",
+      "project_generate"
+    ],
+    "finalizing": [
+      "project_download"
+    ],
+    "auth": [
+      "connect_start",
+      "connect_poll",
+      "connect_logout",
+      "entitlements"
+    ],
+    "diagramWrite": [
+      "diagram_apply",
+      "diagram_bind_source",
+      "diagram_bundle_apply"
+    ],
+    "neverBeforeUserDecision": [
+      "connect_start",
+      "connect_poll",
+      "entitlements",
+      "project_create",
+      "project_sql_commit",
+      "project_template_use",
+      "project_source_doc_create",
+      "project_generate",
+      "project_download",
+      "billing_quote",
+      "diagram_apply",
+      "diagram_bind_source",
+      "diagram_bundle_apply"
+    ],
+    "legend": {
+      "free": "不耗捷码积分，可在用户闸门前使用（billing_status 只读同理）",
+      "billable": "耗积分或占用额度，必须已过用户闸门，并按服务端报价与网页确认执行",
+      "finalizing": "不耗积分，但只能在生成终态成功后调用",
+      "auth": "连接与权益；connect_status 只读，其余在用户闸门后",
+      "diagramWrite": "图稿写入，必须已过用户闸门且图稿正文已定稿"
+    }
+  },
+  "stableIds": [
+    "previewId",
+    "requestId",
+    "idempotencyKey",
+    "requestNonce",
+    "jobId",
+    "artifactId",
+    "downloadRequestId",
+    "sqlFingerprint",
+    "bundleId / commandBatchId",
+    "localSourceSha256",
+    "sourceDocProjectId"
+  ],
+  "stageGroups": {
+    "ENV": {
+      "id": "ENV",
+      "label": "本地运行环境",
+      "stages": [
+        "ENV.REQUIREMENTS",
+        "ENV.DIAGNOSE",
+        "ENV.VERSIONS",
+        "ENV.PLAN",
+        "ENV.AUTHORIZE",
+        "ENV.APPLY",
+        "ENV.VERIFY"
+      ],
+      "rule": "只有交付需要运行才进入；已满足组件不重复安装",
+      "capability": "localRuntime"
+    },
+    "HARD": {
+      "id": "HARD",
+      "label": "业务与数据库加固",
+      "stages": [
+        "HARD.GAPS",
+        "HARD.DATABASE",
+        "HARD.PERMISSIONS",
+        "HARD.PAGES",
+        "HARD.ACCEPTANCE",
+        "HARD.REWORK",
+        "HARD.FREEZE"
+      ],
+      "rule": "system/full必须进入；diagrams不进入；已有明确仅源码范围不宣称业务验收完成",
+      "capability": "hardening"
+    },
+    "DIA": {
+      "id": "DIA",
+      "label": "独立图稿子系统",
+      "stages": [
+        "DIA.DRAFT",
+        "DIA.SAVE"
+      ],
+      "rule": "同一图稿流程服务源码、生成项目和独立入口；图稿失败不撤销已完成加固",
+      "capability": "diagrams"
+    },
+    "CODE": {
+      "id": "CODE",
+      "label": "源码生成与下载",
+      "stages": [
+        "CREATE.GENERATE",
+        "CREATE.DOWNLOAD"
+      ],
+      "capability": "generate",
+      "rule": "仅需要新生成源码且用户已明确生成范围时执行"
+    },
+    "SOURCE_DOC": {
+      "id": "SOURCE_DOC",
+      "label": "最终已有源码图文交付",
+      "capability": "diagrams",
+      "stages": [
+        "CREATE.C3",
+        "CREATE.C4",
+        "DIA.DRAFT",
+        "DIA.SAVE",
+        "CREATE.C7"
+      ],
+      "rule": "完善已有源码后才冻结证据、取得在线项目并出图；只要系统不进入"
+    }
+  },
+  "routes": [
+    {
+      "id": "requirement",
+      "label": "A 需求模式",
+      "intent": "用户给文字需求或需求文档，按用户目标交付图稿、系统或全套",
+      "entryMode": "manual",
+      "signals": [
+        {
+          "kind": "hasRequirementText",
+          "weight": "required"
+        }
+      ],
+      "disambiguate": [
+        "同时给 SQL 与需求：先问以哪个作为结构基线，答案写入检查点",
+        "同时给源码与需求：按源码模式处理，需求作为业务事实来源"
+      ],
+      "stages": [
+        "CREATE.A1",
+        "CREATE.A2",
+        "CREATE.A3",
+        "CREATE.A4",
+        "CREATE.A5",
+        "CREATE.A6",
+        "CREATE.A7",
+        "CREATE.A8"
+      ],
+      "tail": [
+        "CODE",
+        "ENV",
+        "HARD",
+        "DIA",
+        "DELIVERY.FINAL"
+      ]
+    },
+    {
+      "id": "sql",
+      "label": "B SQL 模式",
+      "intent": "用户给建表 SQL，按用户目标交付图稿、系统或全套",
+      "entryMode": "sql",
+      "signals": [
+        {
+          "kind": "hasSqlBody",
+          "weight": "required"
+        }
+      ],
+      "disambiguate": [
+        "SQL 只是证据，不默认完整：需要逐表分析并形成增强版工作副本",
+        "SQL 同时含业务说明：业务说明只作事实来源，结构仍以增强 SQL 为基线"
+      ],
+      "stages": [
+        "CREATE.B1",
+        "CREATE.B2",
+        "CREATE.B3",
+        "CREATE.B4",
+        "CREATE.B5",
+        "CREATE.B6",
+        "CREATE.B7",
+        "CREATE.B8"
+      ],
+      "tail": [
+        "CODE",
+        "ENV",
+        "HARD",
+        "DIA",
+        "DELIVERY.FINAL"
+      ]
+    },
+    {
+      "id": "source",
+      "label": "C 源码模式",
+      "intent": "分析已有源码；按目标文档化、完善原项目或经明确决定重建",
+      "entryMode": "source-doc",
+      "signals": [
+        {
+          "kind": "hasSourceTree",
+          "weight": "required"
+        }
+      ],
+      "disambiguate": [
+        "源码同时含 SQL 或需求：源码是结构事实来源，SQL/需求只作补充证据",
+        "源码不可读或缺构建文件：说明无法检查的部分，不猜测实现",
+        "按已明确的图稿/系统/全套目标选择documentation或reuse；重新生成必须明确rebuild"
+      ],
+      "stages": [],
+      "branches": [
+        {
+          "id": "documentation",
+          "label": "已有源码图文交付",
+          "stages": [
+            "CREATE.C1",
+            "CREATE.C2",
+            "CREATE.C3",
+            "CREATE.C4",
+            "DIA.DRAFT",
+            "DIA.SAVE",
+            "CREATE.C7"
+          ],
+          "tail": [
+            "DELIVERY.FINAL"
+          ],
+          "defaultTarget": "diagrams",
+          "targets": [
+            "diagrams",
+            "preview"
+          ]
+        },
+        {
+          "id": "rebuild",
+          "label": "重建为受支持平台（仅用户明确要求）",
+          "requiresUserConfirmation": true,
+          "stages": [
+            "CREATE.C1",
+            "CREATE.C2",
+            "CREATE.C9"
+          ],
+          "thenRoute": "requirement",
+          "enterAt": "CREATE.A4",
+          "note": "明确重建后接入需求CREATE.A4，按system/full/source-only已确认目标解析后续，不进入documentation",
+          "targets": [
+            "system",
+            "full",
+            "source-only"
+          ]
+        },
+        {
+          "id": "run-verification",
+          "label": "运行原项目验证行为（仅用户明确要求）",
+          "requiresUserConfirmation": true,
+          "stages": [
+            "CREATE.C1",
+            "CREATE.C2",
+            "CREATE.C10"
+          ],
+          "tail": [
+            "ENV",
+            "DELIVERY.FINAL"
+          ],
+          "note": "只有用户要求实际运行原项目时才进入环境阶段；环境目标是原项目真实依赖，不安装捷码生成器开发环境。",
+          "defaultTarget": "system",
+          "targets": [
+            "system"
+          ],
+          "capabilities": {
+            "generate": false,
+            "hardening": false,
+            "diagrams": false
+          }
+        },
+        {
+          "id": "reuse",
+          "label": "完善已有系统（不重建）",
+          "targets": [
+            "system",
+            "full"
+          ],
+          "stages": [
+            "CREATE.C1",
+            "CREATE.C2"
+          ],
+          "tail": [
+            "ENV",
+            "HARD",
+            "SOURCE_DOC",
+            "DELIVERY.FINAL"
+          ],
+          "capabilities": {
+            "generate": false
+          },
+          "note": "保持原技术栈和源码来源；系统目标不建项，全套在验收冻结后建图稿项目或复用已有项目"
+        }
+      ],
+      "forbidToolsByBranch": {
+        "documentation": [
+          "project_generate",
+          "project_download",
+          "project_template_use",
+          "project_sql_commit",
+          "project_create"
+        ],
+        "run-verification": [
+          "project_generate",
+          "project_download",
+          "project_create",
+          "project_sql_commit",
+          "project_template_use",
+          "project_source_doc_create"
+        ],
+        "reuse": [
+          "project_generate",
+          "project_download",
+          "project_create",
+          "project_sql_commit",
+          "project_template_use"
+        ]
+      }
+    },
+    {
+      "id": "template",
+      "label": "模板模式",
+      "intent": "用户只给捷码模板 ID",
+      "entryMode": "template",
+      "signals": [
+        {
+          "kind": "hasTemplateId",
+          "weight": "required"
+        }
+      ],
+      "disambiguate": [
+        "模板 ID 与需求同时出现：先确认是否套用模板"
+      ],
+      "stages": [
+        "CREATE.D1",
+        "CREATE.D2"
+      ],
+      "tail": [
+        "CODE",
+        "ENV",
+        "HARD",
+        "DIA",
+        "DELIVERY.FINAL"
+      ]
+    },
+    {
+      "id": "manual-structure",
+      "label": "规范手工结构模式",
+      "intent": "用户给出已规范化的实体/关系/权限清单",
+      "entryMode": "manual",
+      "signals": [
+        {
+          "kind": "hasStructuredSpec",
+          "weight": "required"
+        }
+      ],
+      "disambiguate": [
+        "规范清单不等于已通过权限审查，仍要过 CREATE.A4 同一门槛"
+      ],
+      "stages": [
+        "CREATE.M1"
+      ],
+      "thenRoute": "requirement",
+      "enterAt": "CREATE.A4",
+      "tail": []
+    },
+    {
+      "id": "env-only",
+      "label": "运行已有本地项目",
+      "intent": "运行已有本地项目",
+      "entryMode": "local",
+      "stages": [],
+      "tail": [
+        "ENV",
+        "DELIVERY.FINAL"
+      ],
+      "inputs": [
+        "localDirectory",
+        "userRequest"
+      ],
+      "forbidTools": [
+        "project_create",
+        "project_sql_commit",
+        "project_source_doc_create",
+        "project_template_use",
+        "project_generate",
+        "project_download"
+      ],
+      "defaultTarget": "system",
+      "targets": [
+        "system"
+      ],
+      "capabilities": {
+        "generate": false,
+        "hardening": false,
+        "diagrams": false
+      }
+    },
+    {
+      "id": "harden-only",
+      "label": "加固已有项目",
+      "intent": "加固已有项目",
+      "entryMode": "local",
+      "stages": [],
+      "tail": [
+        "ENV",
+        "HARD",
+        "DELIVERY.FINAL"
+      ],
+      "inputs": [
+        "localDirectory",
+        "userRequest"
+      ],
+      "forbidTools": [
+        "project_create",
+        "project_sql_commit",
+        "project_source_doc_create",
+        "project_template_use",
+        "project_generate",
+        "project_download"
+      ],
+      "defaultTarget": "system",
+      "targets": [
+        "system"
+      ],
+      "capabilities": {
+        "generate": false,
+        "diagrams": false
+      }
+    },
+    {
+      "id": "diagram-only",
+      "label": "为已有项目补图稿",
+      "intent": "为已有项目补图稿",
+      "entryMode": "local",
+      "stages": [],
+      "tail": [
+        "DIA",
+        "DELIVERY.FINAL"
+      ],
+      "inputs": [
+        "userRequest",
+        "projectId",
+        "designRevision",
+        "设计事实或可读源码证据"
+      ],
+      "forbidTools": [
+        "project_create",
+        "project_sql_commit",
+        "project_source_doc_create",
+        "project_template_use",
+        "project_generate",
+        "project_download"
+      ],
+      "defaultTarget": "diagrams",
+      "targets": [
+        "diagrams"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": "G1",
+      "name": "预览不扣费",
+      "rule": "用户闸门之前禁止调用 neverBeforeUserDecision 内任何工具；闸门之后才允许。闸门使用 WorkBuddy 原生选择卡，答复后在同一任务自动续跑；模糊的“继续”不算创建/付费授权。余额足够时按已同意范围由服务端结算，只有积分不足才提示充值或开通会员",
+      "check": {
+        "kind": "gateOrder",
+        "tools": "tools.neverBeforeUserDecision",
+        "mustFollowAnyGate": [
+          "CREATE.A5",
+          "CREATE.B4",
+          "CREATE.C4",
+          "CREATE.D2"
+        ]
+      }
+    },
+    {
+      "id": "G2",
+      "name": "预检先于建项",
+      "rule": "requirement/manual-structure/source-doc 必须先 project_preflight=ready，且建项使用同一 previewId 与 digest",
+      "check": "create.previewId == preflight.previewId && create.digest == preflight.digest"
+    },
+    {
+      "id": "G3",
+      "name": "SQL 二次预览",
+      "rule": "project_sql_commit 前必须存在两次 project_sql_preview，第二次含完整 decisions，提交指纹等于第二次预览指纹",
+      "check": "previewCount>=2 && commit.fingerprint==lastPreview.fingerprint"
+    },
+    {
+      "id": "G4",
+      "name": "单一计费建项",
+      "rule": "同一路由内 project_create / project_sql_commit / project_template_use / project_source_doc_create 只允许成功出现一次；重试沿用同一 ID",
+      "check": "count(billableCreate)<=1"
+    },
+    {
+      "id": "G5",
+      "name": "按交付条件触发环境",
+      "rule": "可读本地项目且解析目标包含ENV才进入；不把下载作为环境入口前提",
+      "check": {
+        "kind": "conditionalStages",
+        "group": "ENV"
+      }
+    },
+    {
+      "id": "G6",
+      "name": "模式不得中途切换",
+      "rule": "输入来源与计费入口不暗改；用户明确改变交付目标通过retarget留历史，保留已有身份；源码重新生成必须rebuild决定",
+      "check": "routeChanges 全为空，或每条都带 userConfirmed=true"
+    },
+    {
+      "id": "G7",
+      "name": "业务完成不等于产物存在",
+      "rule": "仅计划包含HARD时，交付要求真实数据库、逐角色验收、返工和冻结；只生成下载不等于系统完成",
+      "check": "resolvedPlan includes HARD → required business evidence"
+    },
+    {
+      "id": "G8",
+      "name": "源码模式不生成、不下载、不装生成器环境",
+      "rule": "source 路由（documentation 分支）禁止出现 project_generate / project_download / project_create / project_sql_commit / project_template_use，且不出现 E、H 阶段",
+      "check": {
+        "kind": "forbidTools",
+        "route": "source",
+        "branch": "documentation",
+        "tools": [
+          "project_generate",
+          "project_download",
+          "project_create",
+          "project_sql_commit",
+          "project_template_use"
+        ]
+      }
+    },
+    {
+      "id": "G9",
+      "name": "源码重建与运行验证需要用户明确要求",
+      "rule": "source目标diagrams走documentation，system/full走reuse；rebuild与run-verification均需明确原话；完善原项目不是重建授权",
+      "check": {
+        "kind": "branchGate",
+        "routes": {
+          "source": [
+            "rebuild",
+            "run-verification"
+          ]
+        }
+      }
+    },
+    {
+      "id": "G10",
+      "name": "条件阶段完整",
+      "rule": "执行计划由交付目标决定；已选阶段不得跳过，不适用阶段必须记录范围原话",
+      "check": {
+        "kind": "resolvedPlanRequired"
+      }
+    },
+    {
+      "id": "G11",
+      "name": "按目标交付证据",
+      "rule": "diagrams只验DIA，system验ENV/HARD，full验全部及图与最终实现一致；原生证据独立；数据变化失效传播",
+      "check": {
+        "kind": "deliveryEvidence"
+      }
+    }
+  ],
+  "entryModeNote": "需求与规范结构入口均提交 entryMode=manual、source=manual；结构语义由 WorkBuddy 模型完成，不调用捷码站内 ai 模式或 AI 优化接口。source-doc 同样提交 source=manual，但额外记录源码溯源且禁止生成。SQL 保持独立入口，禁止 AI 候选决策。",
+  "changes": [
+    "v13：唯一阶段真值、条件式 ENV/HARD/DIA 与三独立路由、统一决定命名、数据库全量重设计门禁、旧 ID 映射与同身份续跑",
+    "v12：浏览器交接先探测宿主通道（内置/仅独立浏览器/无），只有内置浏览器可称右侧打开；未装组件只引导一次安装；图稿阶段补充用例图与功能结构图投影不可并存的已知限制",
+    "v11：授权、在线项目、首次可运行初版与最终图稿/本地预览统一由WorkBuddy内置浏览器自动打开；加入有界授权轮询、凭据与网页会话区分、真实失败降级和项目外交接证据",
+    "v9：ENV.VERIFY verify.json 必须有真实 passed 且 failed=0 才能进入 HARD.GAPS；needsHuman 可随业务改造追踪，但进入 DELIVERY.FINAL 和完成交付前必须清零；检查点实际解析三分类报告",
+    "v8：明确 full/preview 目标，WorkBuddy 原生选择卡逐题可选且有内置其他说明；点选后同任务自动续跑。普通等待为 awaiting_user，不再标 blocked；模糊“继续”不能打开计费建项闸门",
+    "v7：需求入口改为 manual；禁用捷码站内 ai 模式、内部 AI 优化接口与 SQL AI 候选决策；旧 ai 预览须重新预检",
+    "v6：三种模式拆成独立阶段序列与独立终点；需求与 SQL 共用 CREATE.GENERATE→CREATE.DOWNLOAD→ENV.REQUIREMENTS–ENV.VERIFY→HARD.GAPS–DIA.SAVE→DELIVERY.FINAL，源码默认 CREATE.C1–CREATE.C7→DELIVERY.FINAL",
+    "v6：源码模式改为文档优先：新增 CREATE.C4 源码文档建项、DIA.DRAFT 图稿、DIA.SAVE 回读、CREATE.C7 文档交付；CREATE.C3 与 CREATE.C4 不再串联成「重建必经」",
+    "v6：重建（rebuild）与运行验证（run-verification）改为用户明确要求才进入的分支，默认分支是 documentation；G9 强校验",
+    "v6：新增 G8 源码模式禁止生成/下载/建项工具，与阶段序列共同保证不会暗中走生成路线",
+    "v6：环境阶段从参考文档升为状态机必经阶段 ENV.REQUIREMENTS–ENV.VERIFY，每阶段带产出证据；G10/G11 强校验",
+    "v6：加固阶段从参考文档升为必经阶段 HARD.GAPS–DIA.SAVE，覆盖差距清单、SQL、权限、逐页、实测、返工、审计、图稿",
+    "v6：ER 是派生图种（正文来自项目结构），不接受正文提交与源码绑定；源码证据新增 WORKSPACE 分支",
+    "v6：检查点脚本改为自检：可校验已记录的阶段、工具与阶段证据，但不声称能拦截未记录的 MCP 调用",
+    "v6.1：扣费口径改为「余额足够直接结算，积分不足才提示充值/开通会员」，402 载荷带 insufficientCredits（required/current/shortfall + 充值/会员入口）",
+    "v6：阶段新增 artifacts 字段，作为该阶段的完成证据；advance 时校验上一阶段证据是否登记并可读",
+    "v14: 三目标单一解析；设计/源码双图稿依据；旧身份续跑与单边界迁移"
+  ],
+  "schemaKindNote": "schema_get 的 kind 枚举以 MCP 实际实现为准（design/preflight/sql-preview/sql-commit/template-use/source-doc）；本合同声明的是各阶段必须取到的子集。",
+  "stageAliases": {
+    "A1": "CREATE.A1",
+    "A2": "CREATE.A2",
+    "A3": "CREATE.A3",
+    "A4": "CREATE.A4",
+    "A5": "CREATE.A5",
+    "A6": "CREATE.A6",
+    "A7": "CREATE.A7",
+    "A8": "CREATE.A8",
+    "B1": "CREATE.B1",
+    "B2": "CREATE.B2",
+    "B3": "CREATE.B3",
+    "B4": "CREATE.B4",
+    "B5": "CREATE.B5",
+    "B6": "CREATE.B6",
+    "B7": "CREATE.B7",
+    "B8": "CREATE.B8",
+    "C1": "CREATE.C1",
+    "C2": "CREATE.C2",
+    "C3": "CREATE.C3",
+    "C4": "CREATE.C4",
+    "C5": "DIA.DRAFT",
+    "C6": "DIA.SAVE",
+    "C7": "CREATE.C7",
+    "C9": "CREATE.C9",
+    "C10": "CREATE.C10",
+    "D1": "CREATE.D1",
+    "D2": "CREATE.D2",
+    "M1": "CREATE.M1",
+    "E1": "ENV.REQUIREMENTS",
+    "E2": "ENV.DIAGNOSE",
+    "E3": "ENV.VERSIONS",
+    "E4": "ENV.PLAN",
+    "E5": "ENV.AUTHORIZE",
+    "E6": "ENV.APPLY",
+    "E7": "ENV.VERIFY",
+    "H1": "HARD.GAPS",
+    "H2": "HARD.DATABASE",
+    "H3": "HARD.PERMISSIONS",
+    "H4": "HARD.PAGES",
+    "H5": "HARD.ACCEPTANCE",
+    "H6": "HARD.REWORK",
+    "H7": "HARD.FREEZE",
+    "H8": "DIA.SAVE",
+    "R1": "CREATE.GENERATE",
+    "R2": "CREATE.DOWNLOAD",
+    "F2": "DELIVERY.FINAL"
+  },
+  "stages": [
+    {
+      "id": "CREATE.GENERATE",
+      "name": "按已确认设计生成与计费",
+      "owner": [
+        "workbuddy",
+        "mcp"
+      ],
+      "mcp": [
+        "project_generate",
+        "billing_quote",
+        "billing_status",
+        "generation_status"
+      ],
+      "cost": "billable",
+      "conditional": [
+        {
+          "tool": "billing_quote",
+          "when": "402 且用户尚未在网页确认"
+        },
+        {
+          "tool": "billing_status",
+          "when": "提交报价后读取原 approvalId 状态"
+        }
+      ],
+      "pre": [
+        "已过用户闸门并有 projectId 与 designRevision"
+      ],
+      "artifacts": [
+        {
+          "name": "generation-receipt.json",
+          "description": "nonce、jobId、计费回执与终态状态"
+        }
+      ],
+      "success": [
+        "用 project_show 最新 designRevision 生成 requestNonce",
+        "余额或权益足够时服务端直接结算，不再要求用户逐笔确认扣费",
+        "generation_status 到终态成功，jobId 与产物版本可回读"
+      ],
+      "retry": [
+        "402 且带 insufficientCredits（积分不足）：把 requiredCredits/currentCredits/shortfall 与充值、开通会员入口给用户，处理后用原 nonce 重试",
+        "有 jobId 才调用 generation_status(jobId)；无 jobId 的 5xx/超时先核对服务端意图、执行和预留，无法核实时停止，严禁拿 requestNonce 当 jobId 查询或换 nonce 重试"
+      ],
+      "forbid": [
+        "余额足够时索要第二次扣费确认",
+        "在积分不足时自行绕过充值或用别人的额度",
+        "换 nonce 重开或重复扣费",
+        "把排队中写成失败"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/0"
+    },
+    {
+      "id": "CREATE.DOWNLOAD",
+      "name": "下载源码基线并冻结本地摘要",
+      "owner": [
+        "workbuddy",
+        "mcp"
+      ],
+      "mcp": [
+        "project_download",
+        "local_snapshot"
+      ],
+      "cost": "finalizing",
+      "pre": [
+        "CREATE.GENERATE 生成终态成功"
+      ],
+      "artifacts": [
+        {
+          "name": "local-snapshot.json",
+          "description": "下载目录、来源清单与源码摘要；不是业务验收证据"
+        }
+      ],
+      "success": [
+        "落到全新绝对目录，不覆盖已有目录",
+        "local_snapshot 回读来源清单与摘要并记录"
+      ],
+      "retry": [
+        "下载中断用同一下载 ID 与原版本重试"
+      ],
+      "forbid": [
+        "把下载成功写成业务完成",
+        "覆盖用户已有目录"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/1"
+    },
+    {
+      "id": "ENV.REQUIREMENTS",
+      "name": "读取最终产物并计算本项目所需组件",
+      "owner": [
+        "workbuddy",
+        "host"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "用户交付目标需要本地运行，且输入项目目录可读；不依赖下载阶段"
+      ],
+      "artifacts": [
+        {
+          "name": "requirements.json",
+          "description": "detect-requirements 输出的组件与版本需求，凭据字段为 <redacted>"
+        }
+      ],
+      "success": [
+        "实际读构建文件、数据库驱动与交付类型，不沿用建项前的猜测",
+        "只列本项目真正需要的组件；项目自带 mvnw/gradlew 时优先包装器",
+        "配置里被注释掉的连接串不算需求"
+      ],
+      "retry": [
+        "产物不完整 → 记录盲区并说明缺哪份依据"
+      ],
+      "forbid": [
+        "按平台名批量装整套工具",
+        "把平台默认栈当成项目事实"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "dev-env-setup/WORKFLOW.md"
+    },
+    {
+      "id": "ENV.DIAGNOSE",
+      "name": "检测操作系统、架构、现有安装、版本、PATH、服务与连接状态",
+      "owner": [
+        "host"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "ENV.REQUIREMENTS 完成"
+      ],
+      "artifacts": [
+        {
+          "name": "diagnose-before.ndjson",
+          "description": "只读诊断原始输出（十态词表）"
+        },
+        {
+          "name": "platform-facts.json",
+          "description": "OS 版本、架构、内存、磁盘、包管理器"
+        }
+      ],
+      "success": [
+        "只运行只读诊断，不安装、不启停服务、不读真实口令",
+        "用持久化 PATH 复核，不把宿主注入的 PATH 当用户环境",
+        "识别转发壳与 0 字节占位，不误判为第二份安装"
+      ],
+      "retry": [
+        "命令被宿主或安全策略拒绝 → 记录状态并请用户执行同一条只读命令"
+      ],
+      "forbid": [
+        "用「能打印版本」当作可用",
+        "在诊断阶段修改系统"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "dev-env-setup/WORKFLOW.md"
+    },
+    {
+      "id": "ENV.VERSIONS",
+      "name": "按项目约束与机器条件选择兼容版本",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "ENV.DIAGNOSE 完成"
+      ],
+      "artifacts": [
+        {
+          "name": "version-selection.md",
+          "description": "逐组件：候选、硬约束、淘汰原因、选定版本与依据"
+        }
+      ],
+      "success": [
+        "先按项目声明，再按机器上限；不静默换版本",
+        "有网络时核对官方平台页；没联网必须写明按基线矩阵选定",
+        "明确写出本次不装什么、为什么"
+      ],
+      "retry": [
+        "项目要求与本机不兼容 → 报冲突并给最低可行版本，等用户确认"
+      ],
+      "forbid": [
+        "装最新版优先于项目声明",
+        "谎称已核对官方页面"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "dev-env-setup/WORKFLOW.md"
+    },
+    {
+      "id": "ENV.PLAN",
+      "name": "分清新装、增量补齐与损坏修复并生成逐组件执行计划",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "ENV.VERSIONS 完成"
+      ],
+      "artifacts": [
+        {
+          "name": "plan.json",
+          "description": "plan.mjs 输出的逐动作计划：来源、摘要、写入位置、权限、影响、备份、恢复、复验"
+        }
+      ],
+      "success": [
+        "每个动作写全九项，缺一项不能拿去授权",
+        "首选用户级前缀与官方压缩包，系统级安装单列影响",
+        "已有实例与已有目录只复用不覆盖；数据库修复先备份再取证"
+      ],
+      "retry": [
+        "摘要拿不到或需提权 → 作为阻塞项交用户决定，不改写成「请自行安装」"
+      ],
+      "forbid": [
+        "批量安装",
+        "覆盖已有目录",
+        "重建已有 datadir",
+        "改已有实例管理员口令"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "dev-env-setup/WORKFLOW.md"
+    },
+    {
+      "id": "ENV.AUTHORIZE",
+      "name": "对具体系统改动取得用户授权",
+      "owner": [
+        "user"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "userGate": true,
+      "pre": [
+        "ENV.PLAN 计划已生成且无阻塞项"
+      ],
+      "artifacts": [
+        {
+          "name": "decisions/environment.json",
+          "description": "planDigest、actionIds、权限等级、授权来源；无系统改动沿用当前请求，不新增选择卡"
+        }
+      ],
+      "success": [
+        "只对系统安装或授予权限请求本人操作；普通可逆项目操作沿用用户请求",
+        "计划摘要与具体动作绑定；新建本机隔离数据库口令读取 conventions.localDemo.password，不改既有实例管理员口令"
+      ],
+      "retry": [
+        "用户拒绝 → 检查点记录 blocked 与该动作，其余动作可继续"
+      ],
+      "forbid": [
+        "代勾选「完全访问」",
+        "把一次授权扩大成全家桶",
+        "在远程或生产实例上使用约定口令"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "dev-env-setup/WORKFLOW.md"
+    },
+    {
+      "id": "ENV.APPLY",
+      "name": "执行安装或修复并保留备份与恢复点",
+      "owner": [
+        "host"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "ENV.AUTHORIZE 已授权具体动作"
+      ],
+      "artifacts": [
+        {
+          "name": "apply-checkpoint.json",
+          "description": "逐动作执行检查点：动作 ID、planDigest、备份位置、日志路径、结果"
+        }
+      ],
+      "success": [
+        "一次一个组件、一个动作，脚本拒绝批量",
+        "先备份后动手；下载必须校验官方摘要",
+        "失败即停、回滚该项、保留日志和检查点，可续跑"
+      ],
+      "retry": [
+        "校验失败即失败，不换镜像重试",
+        "同检查点续跑用原动作 ID"
+      ],
+      "forbid": [
+        "远程脚本管道（下载后直接交给 shell 执行）",
+        "跳过兼容检查",
+        "跳过摘要校验",
+        "关系统安全策略"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "dev-env-setup/WORKFLOW.md"
+    },
+    {
+      "id": "ENV.VERIFY",
+      "browserHandoffs": [
+        "local-initial"
+      ],
+      "name": "新终端复诊并用最终项目真实构建、鉴权连接与启动",
+      "owner": [
+        "host"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "ENV.APPLY 动作完成"
+      ],
+      "artifacts": [
+        {
+          "name": "diagnose-after.ndjson",
+          "description": "新进程再次诊断，验证持久化环境生效"
+        },
+        {
+          "name": "verify.json",
+          "description": "passed / failed / needsHuman 三分类；failed 必须为 0，needsHuman 可带入 HARD.GAPS–DIA.SAVE 但交付前必须补齐"
+        }
+      ],
+      "success": [
+        "用最终源码真实构建一次",
+        "数据库用应用身份真实鉴权连接并读写",
+        "目标入口真实启动并访问业务页；Web初版在首次就绪时自动打开右侧真实首页，有前台时按游客核对；无法自动验证的项列needsHuman"
+      ],
+      "retry": [
+        "failed → 回 ENV.PLAN 修计划后重跑受影响动作，不得直接宣布完成"
+      ],
+      "forbid": [
+        "用「服务 Running」代替页面正确",
+        "把环境通过当作业务完成"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "dev-env-setup/WORKFLOW.md"
+    },
+    {
+      "id": "HARD.GAPS",
+      "browserHandoffs": [
+        "local-initial"
+      ],
+      "name": "盘点生成物、原需求与现有测试并建立差距清单",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "本地项目与业务要求可读；需要实际运行时 ENV.VERIFY 已通过"
+      ],
+      "artifacts": [
+        {
+          "name": "docs/business-gap-list.json",
+          "description": "原需求条目 → 角色/场景 → 页面或接口 → 服务/SQL → 当前实现 → 缺口 → 判定"
+        }
+      ],
+      "success": [
+        "逐条对齐原需求、角色与场景，不把模板 CRUD 当成业务已满足",
+        "记录现有测试与已知失败，标出真实实现、空壳与未证实能力",
+        "清单覆盖全部菜单与无菜单入口（登录、注册、详情、弹窗、深链接）",
+        "从独立业务事实设计目标角色/菜单/业务页面；使用page_tasks.py scan反查当前源码，不能把CRUD菜单当需求真值"
+      ],
+      "retry": [
+        "需求或实现读不全 → 标盲区并说明缺哪份依据"
+      ],
+      "forbid": [
+        "用生成器菜单清单代替真实需求",
+        "漏掉无菜单入口"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "generated-admin-hardening/WORKFLOW.md"
+    },
+    {
+      "id": "HARD.DATABASE",
+      "name": "复核结构、重设计对象与查询并全量重建业务数据",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "HARD.GAPS 差距清单已建立"
+      ],
+      "artifacts": [
+        {
+          "name": "docs/db-redesign.md",
+          "description": "结构保留依据和对象/数据/查询决策"
+        },
+        {
+          "name": "docs/sql-object-inventory.json",
+          "description": "逐对象处置、理由、应用责任与查询入口"
+        },
+        {
+          "name": "docs/seed-data-spec.json",
+          "description": "全新数据与账号、状态/边界/冲突/空态/越权规格"
+        },
+        {
+          "name": "database.sql",
+          "description": "唯一完整空库安装脚本"
+        },
+        {
+          "name": "docs/db-verification.json",
+          "description": "结构/对象/数据/查询/口令/空库真实回读与摘要"
+        }
+      ],
+      "success": [
+        "数据库方法合同全部满足；不能以补齐缺口代替全量重新生成",
+        "必要的业务生产接口先实现，用真实业务动作覆盖状态，再导出唯一安装 SQL",
+        "本地一致性检查 valid 与真实数据库回执分别报告；非实测为 unverified"
+      ],
+      "retry": [
+        "SQL 脚本、ORM 与库实态不一致 → 逐项记录，不擅自选一份当真"
+      ],
+      "forbid": [
+        "对已有库执行迁移删表而未获授权",
+        "为凑数量生成对象"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "generated-admin-hardening/references/database-contract.md"
+    },
+    {
+      "id": "HARD.PERMISSIONS",
+      "name": "按角色、实体、行范围、字段与入口修复真实权限",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "HARD.DATABASE 数据与调用契约已定"
+      ],
+      "artifacts": [
+        {
+          "name": "docs/permission-matrix-diff.json",
+          "description": "角色 × 实体 × 读增改删 × 范围，设计值、实际值、修复项与证据"
+        }
+      ],
+      "success": [
+        "菜单、操作、行范围、字段、导出与附件都覆盖",
+        "无越权、无不可达必需操作、无断裂关系路径",
+        "服务端强制，不只靠前端隐藏"
+      ],
+      "retry": [
+        "发现新的越权路径 → 回 HARD.GAPS 补清单后继续"
+      ],
+      "forbid": [
+        "用 ALL 或加角色补洞",
+        "只测前端按钮"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "generated-admin-hardening/WORKFLOW.md"
+    },
+    {
+      "id": "HARD.PAGES",
+      "name": "按角色、目标菜单与业务页面任务完成业务适配",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "HARD.PERMISSIONS 权限闭环"
+      ],
+      "artifacts": [
+        {
+          "name": "docs/page-business-plan.json",
+          "description": "v2业务页面合同：独立需求来源、角色/菜单/页面、布局、权限、动作、主从和审计映射"
+        },
+        {
+          "name": "docs/page-task-plan.json",
+          "description": "脚本编译的固定页面任务与页内检查，源码/事实/数据绑定；不得手改"
+        },
+        {
+          "name": "page-task-state.json",
+          "description": "项目外持久页内状态；所有目标页面已实施，原请求身份与问题续跑保留"
+        }
+      ],
+      "success": [
+        "每个菜单下每个页面都有业务形态判定，不留空壳 CRUD",
+        "业务动作贯通接口、服务、权限、状态与事务并给出反馈",
+        "登录页与不合理布局首次执行就改造，不只换色改标题",
+        "逐页保存改造前画面，登录/注册/公开首页不能遗漏；实际改造后查看最终截图并给具体结论",
+        "唯一调度单位是角色×目标菜单×业务页面；弹窗、按钮、明细和返工留在原页面任务内",
+        "随包页面任务verify --phase implemented通过；静态未知和未映射入口不得静默删除"
+      ],
+      "retry": [
+        "普通布局选择按事实实施，不重复问卡；关键业务事实冲突才提问；实现变化后compile/sync并复验受影响页面"
+      ],
+      "forbid": [
+        "只美化页面",
+        "把业务操作跳到普通编辑表单",
+        "复用组件就免审其他页"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "generated-admin-hardening/references/page-business-redesign.md"
+    },
+    {
+      "id": "HARD.ACCEPTANCE",
+      "name": "构建、启动并逐角色执行真实业务与越权测试",
+      "owner": [
+        "host",
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "HARD.PAGES 完成且数据库门禁通过，使用当前 dataVersion/objectsVersion 的新数据"
+      ],
+      "artifacts": [
+        {
+          "name": "docs/role-test-results.json",
+          "description": "逐角色 × 逐场景的登录、操作、预期/实际、越权与空错态结果"
+        }
+      ],
+      "success": [
+        "新建开发数据库与本轮全部演示账号统一conventions.localDemo.password，配置/种子/测试/交付一致，逐角色真实登录",
+        "覆盖无权、错误、空态与关键回滚",
+        "网站项目按清单逐页操作，不拿 HTTP 200 代替业务结果",
+        "使用同一page-task-state逐页领取；真实回执按taskId/checkId/fingerprint/operationKey/attempt绑定，不把simulation/static标passed"
+      ],
+      "retry": [
+        "自动生产授权范围的合成数据；缺关键业务事实才提问；重建数据导致旧验收全部按影响范围重跑"
+      ],
+      "forbid": [
+        "只跑构建就宣称通过",
+        "复用上一版截图"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "generated-admin-hardening/WORKFLOW.md"
+    },
+    {
+      "id": "HARD.REWORK",
+      "name": "失败项记录问题、修复、复验并循环到必需项全过",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "HARD.ACCEPTANCE 已产出第一轮结果"
+      ],
+      "artifacts": [
+        {
+          "name": "docs/rework-log.json",
+          "description": "问题 ID、根因、修复、复验结果、关闭状态与受影响页复验记录"
+        }
+      ],
+      "success": [
+        "每个失败项有 ID、根因、修复与复验证据",
+        "修复共享受影响页与角色后重新回读",
+        "同一阻塞三次无进展或需用户动作时写 blocked 并保留恢复步骤",
+        "issue/repair附原页面检查；修复登记不等于通过，必须实际复验；同因三次无进展blocked并给恢复步骤"
+      ],
+      "retry": [
+        "复验仍失败 → 继续 HARD.REWORK，不把未通过标为完成"
+      ],
+      "forbid": [
+        "无限循环无记录",
+        "把下载失败、编译失败或少数页面 200 写成完成"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "generated-admin-hardening/WORKFLOW.md"
+    },
+    {
+      "id": "HARD.FREEZE",
+      "name": "运行随包审计脚本、反向枚举漏页并冻结最终代码事实",
+      "owner": [
+        "workbuddy",
+        "host"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "HARD.REWORK 必需项全部通过"
+      ],
+      "artifacts": [
+        {
+          "name": "docs/page-redesign-audit.json",
+          "description": "逐页审计记录与源码指纹，晚于最终代码"
+        },
+        {
+          "name": "docs/final-code-facts.json",
+          "description": "实际角色与权限、入口、类与方法、状态条件、SQL 对象真实接入状态"
+        },
+        {
+          "name": "docs/runtime-review.json",
+          "description": "统一演示口令、数据库鉴权、逐角色登录与全部页面改造前后截图/实际看图复审，绑定最终源码"
+        },
+        {
+          "name": "docs/page-task-results.json",
+          "description": "页面队列冻结结果；全部页内检查有当前版本真实证据声明，与页面审计覆盖双向一致"
+        }
+      ],
+      "success": [
+        "随包审计脚本退出码 0，反向枚举的视图/路由全部有去向",
+        "证据指纹等于最终代码，旧指纹或「需人工核对」不得通过",
+        "冻结事实清单，之后任何代码或 SQL 变动都使后续图稿失效",
+        "page_tasks.py verify完整通过；可变队列留项目外，冻结报告在绑定源码前写入项目"
+      ],
+      "retry": [
+        "脚本报漏页 → 回 HARD.PAGES/HARD.REWORK 修补后重跑，不删页凑通过"
+      ],
+      "forbid": [
+        "用静态扫描代替运行结果",
+        "把未验证页标成通过"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "generated-admin-hardening/WORKFLOW.md"
+    },
+    {
+      "id": "DIA.SAVE",
+      "browserHandoffs": [
+        "diagrams"
+      ],
+      "name": "保存七类手工图、回读派生 ER 与来源绑定",
+      "owner": [
+        "workbuddy",
+        "mcp"
+      ],
+      "mcp": [
+        "local_snapshot",
+        "diagram_status",
+        "diagram_apply",
+        "diagram_bind_source",
+        "project_show",
+        "connect_status",
+        "connect_start",
+        "connect_poll"
+      ],
+      "cost": "none",
+      "pre": [
+        "DIA.DRAFT 正文与事实依据稳定；原项目身份、设计版本可回读"
+      ],
+      "artifacts": [
+        {
+          "name": "diagram-saved.json",
+          "description": "schemaVersion 2：逐图保存/回读revision与fingerprint、design或source依据、ER版本与原生交接；项目外"
+        }
+      ],
+      "selection": {
+        "rule": "per-kind",
+        "criteria": [
+          "revision=0 → diagram_apply 新批次",
+          "revision>0 且既有手工正文已核实准确 → diagram_bind_source",
+          "revision>0 但正文与最终实现不符 → diagram_apply 新批次覆盖旧正文",
+          "409 → 先回读最新 revision 与人工编辑，再合并后用新批次重提"
+        ]
+      },
+      "success": [
+        "逐类先diagram_status；变化正文用diagram_apply，同正文source图才diagram_bind_source；design图不伪造源码绑定",
+        "七类逐图保存回执与回读revision/fingerprint一致；source另要求同一最终源码摘要/current；design要求同一设计快照与业务依据",
+        "回读ER实际结构与版本；保存用例后再次回读功能结构；图稿展示单独取证"
+      ],
+      "retry": [
+        "409 先回读最新 revision，不覆盖人工编辑",
+        "部分失败按失败图种修复后继续"
+      ],
+      "forbid": [
+        "把计划中未实现的功能画成已运行",
+        "用草图冒充最终实现图"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "diagram-subsystem.md"
+    },
+    {
+      "id": "DELIVERY.FINAL",
+      "browserHandoffs": [
+        "local-final"
+      ],
+      "name": "交付与如实报告",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "本路由全部必过阶段已通过；若经过 ENV.VERIFY，verify.json 的 failed 与 needsHuman 均为 0"
+      ],
+      "artifacts": [
+        {
+          "name": "docs/delivery-report.md",
+          "description": "交付清单、证据、未覆盖项与下一步"
+        }
+      ],
+      "success": [
+        "逐项给证据：项目链接、图稿状态、本地目录、产物版本、环境结果、覆盖数与真实通过数",
+        "状态分 passed / failed / unverified，不混用",
+        "未通过的阶段写明已到阶段与用户需要的动作"
+      ],
+      "retry": [
+        "证据缺失 → 回到对应阶段补做，不在报告里补写"
+      ],
+      "forbid": [
+        "把未执行阶段写成全流程完成",
+        "用空列表或静态扫描冒充运行结果"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/17"
+    },
+    {
+      "id": "CREATE.A1",
+      "name": "输入解析",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "有可读输入"
+      ],
+      "artifacts": [
+        {
+          "name": "facts.md",
+          "description": "交付面、角色线索、实体线索、约束与未确认假设"
+        }
+      ],
+      "success": [
+        "事实清单可核对，来源标清",
+        "说出路由结论与依据"
+      ],
+      "retry": [
+        "附件不可读 → 要正文或路径"
+      ],
+      "forbid": [
+        "调授权/建项/计费工具",
+        "查本机环境"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/18"
+    },
+    {
+      "id": "CREATE.A2",
+      "name": "免费需求与权限预览",
+      "owner": [
+        "workbuddy",
+        "mcp"
+      ],
+      "mcp": [
+        "platform_catalog",
+        "schema_get"
+      ],
+      "schemaKinds": {
+        "schema_get": [
+          "design"
+        ]
+      },
+      "cost": "none",
+      "pre": [
+        "CREATE.A1 完成"
+      ],
+      "artifacts": [
+        {
+          "name": "preview.md",
+          "description": "业务价值预览、角色权限摘要与平台限制"
+        }
+      ],
+      "success": [
+        "角色≤3 且含 Admin 或给出超额依据",
+        "功能与实体清单、谁能看/增/改可读",
+        "按实时目录给出推荐"
+      ],
+      "retry": [
+        "目录与参考冲突 → 以目录为准并记录差异"
+      ],
+      "forbid": [
+        "编造平台能力",
+        "把百格矩阵当首屏"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/19"
+    },
+    {
+      "id": "CREATE.A3",
+      "name": "用户确定技术栈与关键业务选项",
+      "owner": [
+        "user",
+        "workbuddy"
+      ],
+      "mcp": [
+        "platform_catalog"
+      ],
+      "cost": "none",
+      "userGate": true,
+      "pre": [
+        "CREATE.A2 已展示推荐"
+      ],
+      "artifacts": [
+        {
+          "name": "stack-choice.json",
+          "description": "技术栈、数据库、交付面与业务分支的用户答复或「采用模型建议」标记"
+        }
+      ],
+      "success": [
+        "优先复用已知事实；未指定的低影响技术选型使用目录推荐并告知；只有关键业务或高风险歧义才合并原生选择卡",
+        "答案记录 questionKey 与 scopeDigest，不重复问同一问题"
+      ],
+      "retry": [
+        "用户改选 → 重算矩阵与生命周期账本"
+      ],
+      "forbid": [
+        "偷偷换栈",
+        "把建议写成用户确认"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/20"
+    },
+    {
+      "id": "CREATE.A4",
+      "name": "结构/关系/角色/权限设计与免费预检",
+      "owner": [
+        "workbuddy",
+        "mcp"
+      ],
+      "mcp": [
+        "schema_get",
+        "project_preflight"
+      ],
+      "cost": "none",
+      "pre": [
+        "CREATE.A3 已定"
+      ],
+      "artifacts": [
+        {
+          "name": "design.json",
+          "description": "design + evidence + 生命周期账本 + 权限矩阵 + previewId/digest"
+        }
+      ],
+      "success": [
+        "账本行数=实体数且四动作逐格有允许或拒绝",
+        "project_preflight 返回 ready 并保存 previewId/digest"
+      ],
+      "retry": [
+        "needs_revision → 按诊断修结构重跑同一预检"
+      ],
+      "forbid": [
+        "预检未过就授权或建项",
+        "用 ALL 或加角色补洞",
+        "提交 entryMode=ai 或 source=ai"
+      ],
+      "schemaKinds": {
+        "schema_get": [
+          "design",
+          "preflight"
+        ]
+      },
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/21"
+    },
+    {
+      "id": "CREATE.A5",
+      "name": "用户决定创建",
+      "owner": [
+        "user"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "userGate": true,
+      "pre": [
+        "CREATE.A4 ready"
+      ],
+      "artifacts": [
+        {
+          "name": "decisions/business.json",
+          "description": "用户原话、创建与费用范围、questionKey、scopeDigest；明确原始请求可直接复用"
+        }
+      ],
+      "success": [
+        "用户最初请求或原生选择卡答复明确表达创建；模糊的继续/好的不算"
+      ],
+      "retry": [
+        "用户暂不创建 → 停在预览并保留 previewId"
+      ],
+      "forbid": [
+        "把语气当授权",
+        "在用户决定前调用任何计费或图稿写入工具"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/22",
+      "decisionKind": "business-create"
+    },
+    {
+      "id": "CREATE.A6",
+      "browserHandoffs": [
+        "authorization"
+      ],
+      "name": "授权与权益检查",
+      "owner": [
+        "mcp",
+        "user"
+      ],
+      "mcp": [
+        "connect_status",
+        "connect_start",
+        "connect_poll",
+        "entitlements"
+      ],
+      "cost": "none",
+      "pre": [
+        "CREATE.A5 已记录用户决定"
+      ],
+      "steps": [
+        "connect_status",
+        "connect_start",
+        "connect_poll",
+        "entitlements"
+      ],
+      "stepFlags": {
+        "connect_start": "optional-if-already-connected",
+        "connect_poll": "optional-if-already-connected"
+      },
+      "artifacts": [
+        {
+          "name": "access/account.json",
+          "description": "连接与权益真实回读；与业务决定、系统权限分开"
+        }
+      ],
+      "success": [
+        "连接可用且权益已读；新授权已自动打开右侧页面并由connect_poll/status证实，不能只凭用户点选成功"
+      ],
+      "retry": [
+        "未确认 → 保留previewId和右侧授权标签页，有界轮询；不反复发新码或重建项目"
+      ],
+      "forbid": [
+        "代替用户确认授权",
+        "读凭据文件"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/23"
+    },
+    {
+      "id": "CREATE.A7",
+      "name": "按需求设计创建或复用项目",
+      "owner": [
+        "mcp"
+      ],
+      "mcp": [
+        "preview_resume",
+        "project_create",
+        "project_show"
+      ],
+      "cost": "billable",
+      "pre": [
+        "CREATE.A6 连接成功"
+      ],
+      "artifacts": [
+        {
+          "name": "project-created.json",
+          "description": "projectId、designRevision 与 editUrl"
+        }
+      ],
+      "success": [
+        "返回项目身份并可回读",
+        "projectMode=reuse 时只核对原项目归属/结构/版本；产物记 reused，不伪造 created；禁止计费建项工具"
+      ],
+      "retry": [
+        "402/超时 → 只用原 previewId 恢复，不重新预检换 ID"
+      ],
+      "forbid": [
+        "重新预检换 ID",
+        "改冻结正文"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/24",
+      "projectIdentity": true
+    },
+    {
+      "id": "CREATE.A8",
+      "browserHandoffs": [
+        "online-project"
+      ],
+      "name": "回读项目与逻辑图并给出在线编辑链接",
+      "owner": [
+        "workbuddy",
+        "mcp"
+      ],
+      "mcp": [
+        "project_show"
+      ],
+      "cost": "none",
+      "pre": [
+        "CREATE.A7 建项成功"
+      ],
+      "artifacts": [
+        {
+          "name": "edit-link.md",
+          "description": "单独一行的可点击项目链接与逻辑图核对结论"
+        }
+      ],
+      "success": [
+        "完整editUrl已自动在右侧项目标签页打开并回读；单独一行保留备用链接，不代替导航",
+        "逻辑图缺口已记录"
+      ],
+      "retry": [
+        "缺口 → 修设计再回读"
+      ],
+      "forbid": [
+        "默认保存手工初版七图"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/25"
+    },
+    {
+      "id": "CREATE.B1",
+      "name": "方言识别与逐表结构分析",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "拿到 SQL 正文"
+      ],
+      "artifacts": [
+        {
+          "name": "sql-facts.json",
+          "description": "逐表字段/键/约束/注解、方言判定与不兼容语法标记"
+        }
+      ],
+      "success": [
+        "逐表给出业务用途与缺口，不凭表名猜业务"
+      ],
+      "retry": [
+        "片段不明 → 标待确认"
+      ],
+      "forbid": [
+        "在授权前调用 project_sql_preview"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/26"
+    },
+    {
+      "id": "CREATE.B2",
+      "name": "增强版 SQL 工作副本与推荐权限矩阵预演",
+      "owner": [
+        "workbuddy",
+        "mcp"
+      ],
+      "mcp": [
+        "platform_catalog",
+        "schema_get"
+      ],
+      "schemaKinds": {
+        "schema_get": [
+          "sql-preview"
+        ]
+      },
+      "cost": "none",
+      "pre": [
+        "CREATE.B1 完成"
+      ],
+      "artifacts": [
+        {
+          "name": "sql-enhanced.sql",
+          "description": "补必要字段、约束、真实关系、登录实体与状态的工作副本；原件与变更依据单独保留"
+        },
+        {
+          "name": "permission-matrix.md",
+          "description": "逐角色×逐实体×四动作矩阵与逐实体生命周期账本"
+        }
+      ],
+      "success": [
+        "矩阵反向检查到没有必需操作无人可达、没有断裂的关系路径",
+        "普通结构缺口由模型自动修复并留变更依据",
+        "资金、敏感授权、历史数据迁移等高影响选择列为用户决定项"
+      ],
+      "retry": [
+        "关键假设改场景题交用户选择"
+      ],
+      "forbid": [
+        "修改原件或删除原件",
+        "声称已解析或权限已保存"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/27"
+    },
+    {
+      "id": "CREATE.B3",
+      "name": "用户确认平台、数据库与关键业务选项",
+      "owner": [
+        "user",
+        "workbuddy"
+      ],
+      "mcp": [
+        "platform_catalog"
+      ],
+      "cost": "none",
+      "userGate": true,
+      "pre": [
+        "CREATE.B2 矩阵闭环"
+      ],
+      "artifacts": [
+        {
+          "name": "stack-choice.json",
+          "description": "平台、数据库、交付面与业务分支确认"
+        }
+      ],
+      "success": [
+        "优先复用已知事实；未指定的低影响技术选型使用目录推荐并告知；只有关键业务或高风险歧义才合并原生选择卡",
+        "答案记录 questionKey 与 scopeDigest，不重复问同一问题"
+      ],
+      "retry": [
+        "改选 → 废弃旧基线重来"
+      ],
+      "forbid": [
+        "把 SQL 模式改成手工模式",
+        "改用户 SQL 的业务语义"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/28"
+    },
+    {
+      "id": "CREATE.B4",
+      "browserHandoffs": [
+        "authorization"
+      ],
+      "name": "用户决定创建并完成授权",
+      "owner": [
+        "user",
+        "mcp"
+      ],
+      "mcp": [
+        "connect_status",
+        "connect_start",
+        "connect_poll",
+        "entitlements"
+      ],
+      "cost": "none",
+      "userGate": true,
+      "pre": [
+        "CREATE.B3 完成"
+      ],
+      "steps": [
+        "记录用户决定",
+        "connect_status",
+        "connect_start",
+        "connect_poll",
+        "entitlements"
+      ],
+      "stepFlags": {
+        "connect_start": "optional-if-already-connected",
+        "connect_poll": "optional-if-already-connected"
+      },
+      "artifacts": [
+        {
+          "name": "decisions/business.json",
+          "description": "用户原话、创建与费用范围、questionKey、scopeDigest；明确原始请求可直接复用"
+        }
+      ],
+      "success": [
+        "先有用户最初请求或原生选择卡里的明确「创建」原话，再授权成功；模糊继续不算"
+      ],
+      "retry": [
+        "授权页在右侧等待用户本人确认；按返回间隔轮询，普通等待保留原任务，认证成功立即续跑"
+      ],
+      "forbid": [
+        "未同意就取正式解析"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/29",
+      "decisionKind": "business-create"
+    },
+    {
+      "id": "CREATE.B5",
+      "name": "以增强版 SQL 取得捷码正式解析基线",
+      "owner": [
+        "mcp"
+      ],
+      "mcp": [
+        "new_request_id",
+        "schema_get",
+        "project_sql_preview"
+      ],
+      "cost": "none",
+      "pre": [
+        "CREATE.B4 已授权"
+      ],
+      "artifacts": [
+        {
+          "name": "sql-baseline.json",
+          "description": "originalDesign/effectiveDesign、诊断、真实字段 ID 与 sourceHash"
+        }
+      ],
+      "success": [
+        "基线完整回读，真实 ID 与指纹已记录"
+      ],
+      "retry": [
+        "解析失败 → 修原件或交用户决定"
+      ],
+      "forbid": [
+        "把 decisions=[] 的预览当解析结果就提交"
+      ],
+      "schemaKinds": {
+        "schema_get": [
+          "sql-preview",
+          "sql-commit"
+        ]
+      },
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/30"
+    },
+    {
+      "id": "CREATE.B6",
+      "name": "写入有序登录与全量权限 decisions",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "CREATE.B5 基线完整"
+      ],
+      "artifacts": [
+        {
+          "name": "decisions.json",
+          "description": "SET_LOGIN_SURFACE 与 CONFIRM_PERMISSION_MATRIX 全量替换等有序 decisions"
+        }
+      ],
+      "success": [
+        "登录绑定与权限矩阵全部使用真实 ID"
+      ],
+      "retry": [
+        "合同不足 → 最小 SQL 增补或报缺口"
+      ],
+      "forbid": [
+        "伪造字段 ID",
+        "CONFIRM_STRUCTURE_ONLY",
+        "空 grants",
+        "ACCEPT_AI_SELECTION",
+        "REVOKE_AI_SELECTION"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/31"
+    },
+    {
+      "id": "CREATE.B7",
+      "name": "二次预览并逐格回读比对",
+      "owner": [
+        "mcp",
+        "workbuddy"
+      ],
+      "mcp": [
+        "project_sql_preview"
+      ],
+      "cost": "none",
+      "pre": [
+        "CREATE.B6 decisions 完整"
+      ],
+      "artifacts": [
+        {
+          "name": "sql-readback-diff.json",
+          "description": "effectiveDesign 与预演矩阵的逐格比对与 fingerprint"
+        }
+      ],
+      "success": [
+        "逐格一致，指纹已记录"
+      ],
+      "retry": [
+        "不一致 → 改 decisions 再预览"
+      ],
+      "forbid": [
+        "跳过逐格比对"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/32"
+    },
+    {
+      "id": "CREATE.B8",
+      "browserHandoffs": [
+        "online-project"
+      ],
+      "name": "按同一 SQL 指纹提交或核对既有项目",
+      "owner": [
+        "mcp"
+      ],
+      "mcp": [
+        "project_sql_commit",
+        "project_show"
+      ],
+      "cost": "billable",
+      "pre": [
+        "CREATE.B7 全绿"
+      ],
+      "artifacts": [
+        {
+          "name": "project-created.json",
+          "description": "projectId、designRevision、editUrl 与 idempotencyKey"
+        }
+      ],
+      "success": [
+        "回读的登录与授权与矩阵一致",
+        "editUrl自动在右侧项目标签页打开并回读，不能仅返回链接",
+        "计费口径仍是 SQL 模式",
+        "projectMode=reuse 时只核对原项目归属/结构/版本；产物记 reused，不伪造 created；禁止计费建项工具"
+      ],
+      "retry": [
+        "原幂等键重试，不换指纹复用旧键"
+      ],
+      "forbid": [
+        "暗改手工模式",
+        "不一致再建一个项目"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/33",
+      "projectIdentity": true
+    },
+    {
+      "id": "CREATE.C1",
+      "name": "确认源码版本与交付面",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "用户给出可访问的项目目录、仓库或压缩包"
+      ],
+      "artifacts": [
+        {
+          "name": "source-profile.json",
+          "description": "语言与版本、构建工具与产物、交付形态、入口、运行方式；凭据只标位置"
+        }
+      ],
+      "success": [
+        "事实清单可核对，盲区已列出",
+        "确认本次目标是图表与文档"
+      ],
+      "retry": [
+        "部分不可读 → 列盲区"
+      ],
+      "forbid": [
+        "上传源码或凭据",
+        "回显口令",
+        "先跑未知脚本"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/34"
+    },
+    {
+      "id": "CREATE.C2",
+      "name": "只读分析建表 SQL、迁移、ORM、实体、路由、服务、权限与真实调用链",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "CREATE.C1 完成"
+      ],
+      "artifacts": [
+        {
+          "name": "source-analysis.json",
+          "description": "表与字段、关系、迁移、实体、路由、服务、权限实现与调用链"
+        }
+      ],
+      "success": [
+        "覆盖建表 SQL、迁移脚本、ORM/Mapper 与实体定义",
+        "区分真实实现、半成品与占位；记下权限实际落点",
+        "不把「有表」当成「有业务」"
+      ],
+      "retry": [
+        "动静态不一致 → 逐项记录"
+      ],
+      "forbid": [
+        "修改源码",
+        "执行会写数据的脚本"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/35"
+    },
+    {
+      "id": "CREATE.C3",
+      "name": "建立图元素到源码的证据索引",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [
+        "local_snapshot"
+      ],
+      "cost": "none",
+      "pre": [
+        "CREATE.C2 完成"
+      ],
+      "artifacts": [
+        {
+          "name": "source-evidence-index.json",
+          "description": "每个图元素（实体、字段、关系、角色、用例、流程节点）对应的文件、符号与行区间；本地源码摘要"
+        }
+      ],
+      "success": [
+        "证据索引覆盖八类图需要的每个元素",
+        "每个元素都能指回具体源码位置"
+      ],
+      "retry": [
+        "证据不足的元素标 unverified，不画进最终图"
+      ],
+      "forbid": [
+        "凭经验补图元素",
+        "把改进建议画成已实现"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/36"
+    },
+    {
+      "id": "CREATE.C4",
+      "browserHandoffs": [
+        "authorization",
+        "online-project"
+      ],
+      "name": "创建或复用源码文档项目并登记来源",
+      "owner": [
+        "user",
+        "mcp"
+      ],
+      "mcp": [
+        "connect_status",
+        "connect_start",
+        "connect_poll",
+        "entitlements",
+        "project_preflight",
+        "preview_resume",
+        "project_source_doc_create",
+        "source_link",
+        "project_show"
+      ],
+      "cost": "billable",
+      "userGate": true,
+      "steps": [
+        "记录用户决定与费用口径",
+        "connect_status",
+        "connect_start",
+        "connect_poll",
+        "entitlements",
+        "project_preflight",
+        "preview_resume",
+        "project_source_doc_create",
+        "source_link"
+      ],
+      "stepFlags": {
+        "connect_start": "optional-if-already-connected",
+        "connect_poll": "optional-if-already-connected"
+      },
+      "artifacts": [
+        {
+          "name": "source-doc-project.json",
+          "description": "projectId、designRevision、editUrl、源码标签与摘要、结算口径说明"
+        },
+        {
+          "name": "decisions/business.json",
+          "description": "原始请求或原生选择卡的明确建项与费用决定"
+        }
+      ],
+      "success": [
+        "用户最初请求或原生选择卡明确决定创建源码文档工程，模糊继续不算",
+        "按源码分析出的结构建出可在线编辑的项目，并记录源码溯源",
+        "建项口径说明为手工设计额度结算：余额足够时直接结算，积分不足才提示充值/开通会员，不产生生成/下载费用",
+        "授权页和editUrl按浏览器交接协议在右侧自动打开并回读，另保留可点击备用链接",
+        "projectMode=reuse 时只核对原项目归属/结构/版本；产物记 reused，不伪造 created；禁止计费建项工具"
+      ],
+      "retry": [
+        "402/超时 → 原 previewId 与原 requestId 恢复"
+      ],
+      "forbid": [
+        "为拿项目而调用 project_generate 或 project_download",
+        "把源码文档工程说成重建",
+        "隐瞒结算口径"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/37",
+      "decisionKind": "business-create",
+      "projectIdentity": true
+    },
+    {
+      "id": "DIA.DRAFT",
+      "name": "生成并复核七类手工图及派生 E-R 图",
+      "owner": [
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "pre": [
+        "diagramBasis=design：需求/SQL、业务决定及在线设计快照稳定；diagramBasis=source：真实源码证据已冻结",
+        "目标含系统时 HARD.FREEZE 已完成；已有项目身份可回读"
+      ],
+      "artifacts": [
+        {
+          "name": "diagram-drafts.json",
+          "description": "schemaVersion 3：basis=design/source、七类逐行事实、场景覆盖、稳定权限身份和ER对照；项目外证据"
+        }
+      ],
+      "success": [
+        "八类图齐全：七类手工图为功能结构、数据流程、系统流程、系统架构、时序、UML 类、用例；E-R 图由结构派生",
+        "每个元素可回到证据索引；改进建议另列，不进图",
+        "逐类正式原生解析与成员核对单独取证；图稿事实门禁仅返回consistency=valid/status=unverified，不能冒充解析或运行通过"
+      ],
+      "retry": [
+        "格式校验失败 → 按错误修正后重生成该类"
+      ],
+      "forbid": [
+        "把计划中的能力画成已运行",
+        "用经验样例代替当前项目事实",
+        "以名称猜测规范权限稳定身份",
+        "把非空占位JSON或静态检查冒充事实/运行验证"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "diagram-subsystem.md"
+    },
+    {
+      "id": "CREATE.C7",
+      "name": "编写五份项目文档并核对产品可用导出",
+      "owner": [
+        "workbuddy",
+        "mcp"
+      ],
+      "mcp": [
+        "project_show"
+      ],
+      "cost": "none",
+      "pre": [
+        "DIA.SAVE 七类手工图与派生 E-R 图回读一致"
+      ],
+      "artifacts": [
+        {
+          "name": "project-implementation.md",
+          "description": "技术栈、模块、入口、已实现功能与缺口"
+        },
+        {
+          "name": "data-dictionary.md",
+          "description": "表字段、主外键、关系名称与迁移来源"
+        },
+        {
+          "name": "role-permissions.md",
+          "description": "实际角色、权限矩阵、数据范围与代码证据"
+        },
+        {
+          "name": "business-flows-and-interfaces.md",
+          "description": "业务流程、页面、路由与接口清单"
+        },
+        {
+          "name": "diagram-source-index.md",
+          "description": "八类图版本、源码映射与摘要"
+        },
+        {
+          "name": "document-export.json",
+          "description": "五份本地文档的核对结果与网站导出状态；不支持项写明原因"
+        }
+      ],
+      "success": [
+        "在原项目外形成五份非空 Markdown 文档，逐项核对项目说明、数据字典、权限矩阵、业务流程和接口/页面清单、八类图与源码证据索引",
+        "网站支持相应文档导出时再导出并核对；不支持时交付本地文档且如实说明，不伪造文件"
+      ],
+      "retry": [
+        "导出任务失败 → 回读原因后重试同一请求"
+      ],
+      "forbid": [
+        "声称导出了不存在的文件",
+        "把本地草稿说成产品产物"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/39"
+    },
+    {
+      "id": "CREATE.C9",
+      "name": "重建确认与结构化设计",
+      "owner": [
+        "user",
+        "workbuddy",
+        "mcp"
+      ],
+      "mcp": [
+        "platform_catalog",
+        "schema_get"
+      ],
+      "schemaKinds": {
+        "schema_get": [
+          "design"
+        ]
+      },
+      "cost": "none",
+      "userGate": true,
+      "pre": [
+        "用户明确要求重新生成/重建；仅要求完善原代码不构成重建决定"
+      ],
+      "artifacts": [
+        {
+          "name": "rebuild-confirmation.json",
+          "description": "用户原话、原项目约束对照表、不可继承项与计费口径变化"
+        }
+      ],
+      "success": [
+        "用户原话记录在案，明确这是重建不是升级",
+        "不可继承项逐条列出（框架特性、集成、账号体系、历史数据）",
+        "随后进入需求模式 CREATE.A4–CREATE.A8，并走完整尾段（含环境与加固）"
+      ],
+      "retry": [
+        "用户反悔 → 回到 documentation 分支继续文档模式"
+      ],
+      "forbid": [
+        "把重建说成原项目升级",
+        "静默丢业务约束",
+        "与文档模式串成必经链路"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/40"
+    },
+    {
+      "id": "CREATE.C10",
+      "name": "运行原项目验证行为的申请",
+      "owner": [
+        "user",
+        "workbuddy"
+      ],
+      "mcp": [],
+      "cost": "none",
+      "userGate": true,
+      "pre": [
+        "用户明确要求运行原项目以验证行为"
+      ],
+      "artifacts": [
+        {
+          "name": "run-verification-request.json",
+          "description": "用户要求、要验证的行为清单与原项目真实依赖"
+        }
+      ],
+      "success": [
+        "只读识别出原项目依赖，环境目标锁定为原项目而不是捷码生成器",
+        "确认不会因此生成或下载捷码源码"
+      ],
+      "retry": [
+        "用户放弃 → 回到 documentation 分支交付图表与文档"
+      ],
+      "forbid": [
+        "把「想看看」当成运行授权",
+        "安装与本次验证无关的组件"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/41"
+    },
+    {
+      "id": "CREATE.D1",
+      "name": "模板身份与解锁状态",
+      "owner": [
+        "mcp"
+      ],
+      "mcp": [
+        "platform_catalog",
+        "connect_status"
+      ],
+      "cost": "none",
+      "pre": [
+        "拿到模板 ID"
+      ],
+      "artifacts": [
+        {
+          "name": "template-facts.json",
+          "description": "真实模板确认与当前解锁/会员状态"
+        }
+      ],
+      "success": [
+        "模板真实存在，状态已读"
+      ],
+      "retry": [
+        "未解锁 → 停在这里等用户决定"
+      ],
+      "forbid": [
+        "编造模板 ID",
+        "在 CREATE.D1 发起授权"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/42"
+    },
+    {
+      "id": "CREATE.D2",
+      "browserHandoffs": [
+        "authorization",
+        "online-project"
+      ],
+      "name": "按模板身份创建或复用项目",
+      "owner": [
+        "user",
+        "mcp"
+      ],
+      "mcp": [
+        "connect_status",
+        "connect_start",
+        "connect_poll",
+        "entitlements",
+        "new_request_id",
+        "schema_get",
+        "project_template_use",
+        "project_show"
+      ],
+      "schemaKinds": {
+        "schema_get": [
+          "template-use"
+        ]
+      },
+      "cost": "billable",
+      "userGate": true,
+      "steps": [
+        "记录用户决定",
+        "connect_status",
+        "connect_start",
+        "connect_poll",
+        "entitlements",
+        "new_request_id",
+        "schema_get",
+        "project_template_use",
+        "project_show"
+      ],
+      "stepFlags": {
+        "connect_start": "optional-if-already-connected",
+        "connect_poll": "optional-if-already-connected"
+      },
+      "artifacts": [
+        {
+          "name": "project-created.json",
+          "description": "projectId、designRevision 与 editUrl"
+        },
+        {
+          "name": "decisions/business.json",
+          "description": "原始请求或原生选择卡的明确建项与费用决定"
+        }
+      ],
+      "success": [
+        "授权先于建项，授权页与建项后的editUrl自动在右侧打开并回读项目身份",
+        "projectMode=reuse 时只核对原项目归属/结构/版本；产物记 reused，不伪造 created；禁止计费建项工具"
+      ],
+      "retry": [
+        "402 → 用户选择充值/会员后在右侧打开入口，权益回读后复用原请求ID"
+      ],
+      "forbid": [
+        "未解锁反复重试白扣"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/43",
+      "decisionKind": "business-create",
+      "projectIdentity": true
+    },
+    {
+      "id": "CREATE.M1",
+      "name": "结构核对与权限补全",
+      "owner": [
+        "workbuddy",
+        "mcp"
+      ],
+      "mcp": [
+        "platform_catalog",
+        "schema_get"
+      ],
+      "schemaKinds": {
+        "schema_get": [
+          "design"
+        ]
+      },
+      "cost": "none",
+      "pre": [
+        "拿到结构清单"
+      ],
+      "artifacts": [
+        {
+          "name": "design.json",
+          "description": "补齐后的矩阵与生命周期账本"
+        }
+      ],
+      "success": [
+        "矩阵闭环，账本行数=实体数"
+      ],
+      "retry": [
+        "清单缺口 → 补全后重算"
+      ],
+      "forbid": [
+        "跳过权限审查直接建项"
+      ],
+      "recovery": {
+        "retry": "same-identity-readback-first",
+        "rollback": "owned-local-action-only",
+        "blockedAfterNoProgress": 3
+      },
+      "methodRef": "mode-routing.json#/stages/44"
+    }
+  ],
+  "conventions": "conventions.json",
+  "recovery": {
+    "noProgressLimit": 3,
+    "identityKeys": [
+      "projectId",
+      "previewId",
+      "requestId",
+      "idempotencyKey",
+      "requestNonce",
+      "jobId",
+      "downloadRequestId",
+      "commandBatchId",
+      "planDigest"
+    ],
+    "retry": "同一正文同一身份；先回读服务状态，超时不得换号",
+    "rollback": "只回滚本轮独占且有备份的本地动作；不撤销既有计费/建项",
+    "blocked": "保存失败阶段、code、attempts、恢复命令、执行者、保持不变的业务ID"
+  },
+  "artifactAliases": {
+    "user-decision.json": "decisions/business.json",
+    "authorization.json": "decisions/environment.json",
+    "entitlements.json": "access/account.json",
+    "docs/diagram-final.json": "diagram-saved.json",
+    "diagram-drafts.json": "diagram-drafts.json"
+  }
+}

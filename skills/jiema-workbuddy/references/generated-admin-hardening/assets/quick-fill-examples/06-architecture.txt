@@ -1,0 +1,11 @@
+标题："订单受理教学系统架构"
+方向：LR
+节点：1 | "浏览器页面" | round-rect
+节点：2 | "HTTP入口与会话鉴权" | rect
+节点：3 | "认证与订单服务" | rect
+节点：4 | "数据访问层" | rect
+节点：5 | "MySQL数据库" | database
+连接：1 -> 2 | "HTTPS JSON请求与响应" | flow | solid
+连接：2 -> 3 | "已认证身份与业务参数" | flow | solid
+连接：3 -> 4 | "查询或事务命令" | flow | solid
+连接：4 -> 5 | "参数化SQL与事务" | flow | solid

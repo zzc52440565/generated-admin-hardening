@@ -1,0 +1,18 @@
+类：Account
+属性：id：Long
+属性：username：String
+属性：passwordHash：String
+属性：role：String
+类：Order
+属性：id：Long
+属性：customerId：Long
+属性：requestNonce：String
+属性：status：String
+属性：createdAt：Instant
+类：OrderItem
+属性：id：Long
+属性：orderId：Long
+属性：productCode：String
+属性：quantity：Integer
+关系：Order -> Account：关联
+关系：Order -> OrderItem：组合
